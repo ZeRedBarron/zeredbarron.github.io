@@ -132,7 +132,7 @@ Player.prototype.update = function() {
 };
 
 function Block(x, y, type) {
-	this.x = x;
+	this.x = x; 
 	this.y = y;
 	this.w = 0;
 	this.h = 0;
@@ -143,15 +143,17 @@ function Block(x, y, type) {
 	this.type = type;
 }
 Block.prototype.display = function(drawn) {
-	if (drawn) {
-		this.prevX = this.x;
-		this.prevY = this.y;
+	this.prevX = this.x;
+	this.prevY = this.y;
 	
-		ctx.fillStyle = "rgb(255, 255, 0)"
+	ctx.fillStyle = "rgb(0, 0, 0)"
+	if(this.w > 1) {
 		ctx.rect(this.x, this.y, this.w, this.h);
+	}
+	if (drawn) {
 		void((this.fadeIn()) ? this.fadeIn:null);
 	} else {
-		
+		this.fadeOut();
 	}
 	
 }
@@ -168,13 +170,17 @@ Block.prototype.fadeIn = function() {
 	}
 }
 Block.prototype.fadeOut = function() {
-	this.w -= this.speed;
-	this.h -= this.speed;
+	if(this.w >= 0 || this.h >= 0){
+		
+		this.w -= this.speed;
+		this.h -= this.speed;
 
-	if(this.w <= blockSize || this.h <= blockSize) {
-		return true;
-	} else {
-		return false;
+		if(this.w <= 0 || this.h <= 0) {
+			return false;
+		} else {
+			return true;
+		}
+		
 	}
 }
 
@@ -193,7 +199,7 @@ function game() {
 		if(1 * (dist(player.x, player.y, blocks[i].x, blocks[i].y) < 500)) {
 			blocks[i].display(true);
 		} else {
-			
+			blocks[i].display(false);
 		}
 		//blocks[i].display();
 	}
