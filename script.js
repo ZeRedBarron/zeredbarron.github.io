@@ -5,6 +5,9 @@ ctx.imageSmoothingQuality = "high";
 ctx.rect = function(x, y, w, h) {
 	this.fillRect(x - w / 2, y - h / 2, w, h);
 }
+ctx.drawImageC = function(img, x, y, w, h) {
+	this.drawImage(img, x - w / 2, y - h / 2, w, h);
+}
 
 var imgs = new ImageCollection([
 	{
@@ -14,6 +17,10 @@ var imgs = new ImageCollection([
 	{
 		name: "MoonBackground",
 		url: "Moon Background 2.png"
+	},
+	{
+		name: "BlockTexture",
+		url: "Green Block.png"
 	},
 ]);
 
@@ -33,6 +40,9 @@ var levels = [];//This is where the levels will go.
 var speed = 1;//This is the scrolling speed
 var sensitivity = 45;//the higher the less sensitive it is
 var seaLevel = 0;
+var xDist = 0;//how far along we are. 
+
+var particles = [];
 
 var center = {
 	x: window.innerWidth/2,
@@ -48,12 +58,34 @@ var cam = {
 	y: 0,
 };//Camera stuff
 
+function close(targets, num){
+    var allDists = [];
+    for(var i = 0; i < targets.length; i++){
+        allDists.push(Math.abs(targets[i] - num));
+    }
+    
+    var currentLow = allDists[0], final = 0;
+    for(var j = 0; j < allDists.length; j++){
+        if(allDists[j] < currentLow){
+            currentLow = allDists[j];
+            final = j;
+        }
+    }
+    return targets[final];
+}//Closest value for array.
+
 function collide(input1, input2) {
 	return input1.x - input2.x < input2.w &&
 		input2.x - input1.x < input1.w &&
 		input1.y - input2.y < input2.h &&
 		input2.y - input1.y < input1.h;
 }//Block collision function
+function collideHalf(player, block){
+    return player.x + (player.w/2) > block.x - (blockSize/2) &&
+           player.x - (player.w/2) < block.x + (blockSize/2) &&
+           player.y + (player.h/2) > block.y &&
+           player.y - (player.h/2) < block.y + (blockSize/2);
+}//Block collide for half
 
 function dist(x1, y1, x2, y2) {
     return Math.hypot((x2 - x1), (y2 - y1));
@@ -62,6 +94,11 @@ function dist(x1, y1, x2, y2) {
 function lerp(num1, num2, amt) {//For smooth camera motion
 	return (num2 - num1) * amt + num1;
 }
+
+function random(min, max) {
+	var newMax = max - min;
+	return (Math.random() * newMax) + min;
+}//Tamney's Natani's random function
 
 function config() {
 	update();
@@ -74,6 +111,8 @@ function config() {
 	}
 
 	seaLevel = player.y;
+
+	xDist = player.x;
 	
 }
 
@@ -89,44 +128,98 @@ function Player(x, y) {
 	this.prevY = y;
 	this.w = 45;
 	this.h = 45;
+	this.angle = 0;
 	this.gravity = 0;
 	this.canJump = false;
 }
 Player.prototype.draw = function() {
-	ctx.fillStyle = "rgb(255, 0, 0)"
-	ctx.rect(this.x, this.y, this.w, this.h);
+	ctx.fillStyle = "rgb(255, 0, 0)";
+	ctx.save();
+	ctx.translate(this.x, this.y);
+	ctx.rotate(this.angle * Math.PI / 180);
+	ctx.rect(0, 0, this.w, this.h);
+
+	//particles.push(new Particle(400, 400, 1, 3, [0, 0, 0], random(180, 210)));
+	
+	ctx.restore();
+	
 }
 Player.prototype.update = function() {
     this.prevX = this.x;
     this.prevY = this.y;
 
-    this.y += this.gravity;
-    
     this.gravity += 0.18;
+    this.y += this.gravity;
+	this.angle += 5;
+    
+	for(var i = 0; i < blocks.length; i++){
+		if(blocks[i].half && collideHalf(this, blocks[i])){
+			this.gravity = 0;
+			this.angle = close([0, 90, 180, 270, 360], this.angle);
+			
+			if(this.y < blocks[i].y){
+				this.canJump = true;
+				this.y = blocks[i].y - (this.h/2);
+			} else {
+				this.y = blocks[i].y + (blockSize/2) + (this.h/2);
+			}
+			
+		} else if(collide(this, blocks[i]) && !blocks[i].half){
+			this.gravity = 0;
+			this.angle = close([0, 90, 180, 270, 360], this.angle);
+			
+			if(this.y < blocks[i].y){
+				this.canJump = true;
+				this.y = blocks[i].y - (blockSize/2) - (this.h/2);
+			} else {
+				this.y = blocks[i].y + (blockSize/2) + (this.h/2);
+			}
+			
+		}
+		if(collide(this, blocks[i])) {
+			if(this.prevY < blocks[i].prevY) {
+            	this.canJump = true;
+        	}
+		}
+	}
 
-    for(var i in blocks) {
+	/*
+	for(var i in blocks) {
         if(collide(this, blocks[i])) {
             if(this.prevY < blocks[i].prevY) {
                 this.canJump = true;
             }
             this.gravity = 0;
-            
+            this.angle = close([0, 90, 180, 270, 360], this.angle);
             this.y = (this.prevY < blocks[i].prevY) ? blocks[i].y - this.h : blocks[i].y + blockSize;
         }
     }
+	*/
     
     this.x += speed;
 
+	for(var i = 0; i < blocks.length; i++){
+		if(collide(this, blocks[i]) && !blocks[i].half){
+			//update();
+			this.x = (this.prevX < blocks[i].prevX) ? blocks[i].x - this.w : blocks[i].x + blockSize;
+		}
+	}
+	
+	/*
     for(var i in blocks) {
         if(collide(this, blocks[i])) {
             this.x = (this.prevX < blocks[i].prevX) ? blocks[i].x - this.w : blocks[i].x + blockSize;
         }
     }
+	*/
     
     if((keys[32] || keys[38]) && this.canJump) {
         this.gravity = -8;
+		this.canJump = false;
     }
-    this.canJump = false;
+    
+
+	this.angle = this.angle % 360;
 
 	speed = ((seaLevel - this.y)/50) + 3;
 };
@@ -146,9 +239,11 @@ Block.prototype.display = function(drawn) {
 	this.prevX = this.x;
 	this.prevY = this.y;
 	
-	ctx.fillStyle = "rgb(0, 0, 0)"
+	ctx.fillStyle = "rgb(0, 0, 0)";
+	ctx.strokeStyle = "rgb(0, 0, 0)";
 	if(this.w > 1) {
-		ctx.rect(this.x, this.y, this.w, this.h);
+		//ctx.rect(this.x, this.y, this.w, this.h);
+		ctx.drawImageC(imgs.get("BlockTexture"), this.x, this.y, this.w, this.h);
 	}
 	if (drawn) {
 		void((this.fadeIn()) ? this.fadeIn:null);
@@ -184,6 +279,49 @@ Block.prototype.fadeOut = function() {
 	}
 }
 
+//Particle Object
+function Particle(x, y, speed, sze, color, angle) {
+	this.x = x;
+	this.y = y;
+	this.col = color;
+	this.size = sze;
+	this.speed = speed;
+	this.angle = angle;
+	this.life = 200;
+	this.startLife = 0;
+	this.dead = false;
+	this.rot = 0;
+}
+Particle.prototype.draw = function() {
+	var change;
+	ctx.save();
+	ctx.translate(this.x, this.y);
+	/*if(this.startLife > 100) {
+		change = this.life/100;
+	} else {
+		change = this.startLife/100;
+	}*/
+	
+	ctx.fillStyle = "rgba(" + this.col[0] + "," + this.col[1] + "," + this.col[2] + "," + this.life + ")"
+	ctx.beginPath();
+	ctx.ellipse(0, 0, this.size/2, this.size/2, 0, 0, Math.PI*8);
+	ctx.fill();
+	ctx.closePath();
+	ctx.restore();
+};
+Particle.prototype.update = function() {
+	this.x += Math.cos(this.angle * Math.PI/180) * this.speed;
+	this.y += Math.sin(this.angle * Math.PI/180) * this.speed;
+	
+	this.rot++;
+	
+	this.life--;
+	this.startLife++;
+	if(this.life < 0) {
+		this.dead = true;
+	}
+};
+
 var player = new Player(undefined, undefined);
 
 function game() {
@@ -207,6 +345,9 @@ function game() {
 	player.draw();
 
 	ctx.restore();
+
+	xDist += speed;
+	
 }
 
 levelMapIndex = {
@@ -216,18 +357,18 @@ levelMapIndex = {
 
 levels = [
 	[
-		'                           gggggggggggggg   ',
-		'                                            ',
-		'                                            ',
-		'                     gggggggggggg           ',
-		'                                            ',
-		'                                            ',
-		'p     gggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggg',
+		'                               gggggggggggggggg  g',
+		'                                                  ',
+		'                                                  ',
+		'                     gggggggggggg                 ',
+		'                                                  ',
+		'                                                  ',
+		'p     gggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggg',
 	],
 ];
 
@@ -268,6 +409,17 @@ function runGame() {
 	
 
 	game();
+
+	for(var i = particles.length - 1; i > 0; i--) {
+		particles[i].draw();
+		particles[i].update();
+		if(particles[i].dead) {
+			particles.splice(i, 1);
+			continue;
+		}
+	}
+
+	//console.log(player.x + " " + xDist)
 
 	//if(frameClick > 100) {
 		//ctx.drawImage(imgs.get("test2"), 30, 30);
