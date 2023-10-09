@@ -1,19 +1,4 @@
 
-var imgs = new ImageCollection([
-	{
-		name: "test1",
-		url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Maestro_Batik_Tulis_di_Imogiri.jpg/500px-Maestro_Batik_Tulis_di_Imogiri.jpg"
-	},
-	{
-		name: "MoonBackground",
-		url: "Moon Background 2.png"
-	},
-	{
-		name: "BlockTexture",
-		url: "Green Block.png"
-	},
-]);
-
 //All setup
 
 //Variables for the blocks and platformer stuff.
@@ -22,6 +7,7 @@ var blockSize = 45;
 var player, blocks = [];
 
 var update;
+var randomBlock;
 
 var levelMap;
 var level = 0;
@@ -49,6 +35,45 @@ var cam = {
 	y: 0,
 };//Camera stuff
 
+function randomBlock() {
+	let x = randomInt(1, 11);
+	switch(x) {
+		case 1:
+			return "BlockTexture";
+		break;
+		case 2:
+			return "BlockTexture2";
+		break;
+		case 3:
+			return "BlockTexture3";
+		break;
+		case 4:
+			return "BlockTexture4";
+		break;
+		case 5:
+			return "BlockTexture5";
+		break;
+		case 6:
+			return "BlockTexture6";
+		break;
+		case 7:
+			return "BlockTexture7";
+		break;
+		case 8:
+			return "BlockTexture8";
+		break;
+		case 9:
+			return "BlockTexture9";
+		break;
+		case 10:
+			return "BlockTexture10";
+		break;
+		case 11:
+			return "BlockTexture11";
+		break;
+	}
+}
+
 function config() {
 	update();
 
@@ -62,6 +87,8 @@ function config() {
 	seaLevel = player.y;
 
 	xDist = player.x;
+
+	//sound.play();
 	
 }
 
@@ -91,8 +118,8 @@ Player.prototype.draw = function() {
 	ctx.translate(this.x, this.y);
 	ctx.rotate(this.angle * Math.PI / 180);
 	if(!this.jumping) {
-		for(var i = 0; i <= 5; i++) {
-			playerParticles.push(new Particle(this.x - blockSize/2 + 5, this.y + blockSize/2 - 1, random(0.5, 2), random(1, 3), [0, 0, 0], random(180, 210), 50));	
+		for(var i = 0; i <= 3; i++) {
+			playerParticles.push(new Particle(this.x - blockSize/2 + speed, this.y + blockSize/2 - 2 + random(0, -12), undefined, 4, [255, 255, 255], undefined, random(10, 30), random(0.5, 3.5)));	
 		}
 	}
 	ctx.rect(0, 0, this.w, this.h);
@@ -218,7 +245,7 @@ Player.prototype.update = function() {
 	speed = ((seaLevel - this.y)/50) + 3;
 };
 
-function Block(x, y, type) {
+function Block(x, y, type, image) {
 	this.x = x; 
 	this.y = y;
 	this.w = 0;
@@ -226,6 +253,8 @@ function Block(x, y, type) {
 	this.prevX = x;
 	this.prevY = y;
 	this.speed = 5;
+
+	this.image = image;
 
 	this.type = type;
 }
@@ -237,7 +266,7 @@ Block.prototype.display = function(drawn) {
 	ctx.strokeStyle = "rgb(0, 0, 0)";
 	if(this.w > 1) {
 		//ctx.rect(this.x, this.y, this.w, this.h);
-		ctx.drawImageC(imgs.get("BlockTexture"), this.x, this.y, this.w, this.h);
+		ctx.drawImageC(this.image, this.x, this.y, this.w, this.h);
 	}
 	if (drawn) {
 		void((this.fadeIn()) ? this.fadeIn:null);
@@ -273,72 +302,6 @@ Block.prototype.fadeOut = function() {
 	}
 }
 
-//Particle Object
-function Particle(x, y, speed, sze, color, angle, life) {
-	this.x = x;
-	this.y = y;
-	this.prevX = x;
-	this.prevY = y;
-	this.gravity = -3;
-	this.w = sze;
-	this.h = sze;
-	this.col = color;
-	this.size = sze;
-	this.speed = speed;
-	this.angle = angle;
-	this.life = life;
-	this.startLife = 0;
-	this.dead = false;
-	this.rot = 0;
-	this.startLifeValue = this.life;
-}
-Particle.prototype.draw = function() {
-	ctx.save();
-	ctx.translate(this.x, this.y);
-	
-	ctx.fillStyle = "rgba(" + this.col[0] + "," + this.col[1] + "," + this.col[2] + "," + this.life/this.startLifeValue + ")"
-	ctx.beginPath();
-	ctx.ellipse(0, 0, this.size/2, this.size/2, 0, 0, Math.PI*8);
-	ctx.fill();
-	ctx.closePath();
-	ctx.restore();
-};
-Particle.prototype.updateFly = function() {
-	this.x += Math.cos(this.angle * Math.PI/180) * this.speed;
-	this.y += Math.sin(this.angle * Math.PI/180) * this.speed;
-	
-	this.rot++;
-	
-	this.life--;
-	if(this.life < 0) {
-		this.dead = true;
-	}
-};
-Particle.prototype.updateFall = function() {
-	this.prevX = this.x;
-    this.prevY = this.y;
-
-    this.gravity += 0.18;
-    this.y += this.gravity;
-
-	for(var i in blocks) {
-        if(collideHalf(this, blocks[i])) {
-            this.gravity = 0;
-            this.y = (this.prevY < blocks[i].prevY) ? blocks[i].y - this.h/2 - blockSize/2: blocks[i].y + blockSize/2 + this.h/2;
-        }
-    }
-
-	/*for(var i in blocks){
-		if(collide(this, blocks[i])){
-			this.x = (this.prevX < blocks[i].prevX) ? blocks[i].x - this.w : blocks[i].x + blocks[i].h;
-		}
-	}*/
-	
-	this.life--;
-	if(this.life < 0) {
-		this.dead = true;
-	}
-};
 
 function PlayerParticle() {
 	Particle.call(this, [this.prevX, this.prevY, 1, 3, [0, 0, 0], random(180, 210)]);
@@ -353,7 +316,7 @@ Particle.prototype.playerDraw = function() {
 	ctx.restore();
 }
 
-var player = new Player(undefined, undefined, "flight");
+var player = new Player(undefined, undefined, "ground");
 
 function game() {
 	//Put background here.
@@ -425,7 +388,7 @@ function update() {
 					player.y = 15/2 + i * blockSize;
 				break;
 				case "normal":
-					blocks.push(new Block(j * blockSize, i * blockSize, levelMap[i][j]));
+					blocks.push(new Block(j * blockSize, i * blockSize, levelMap[i][j], imgs.get(randomBlock())));
 				break;
 			}
 		}
@@ -437,28 +400,19 @@ function update() {
 config();
 
 function runGame() {
-	ctx.fillStyle = "rgb(255, 255, 255)";
+	ctx.fillStyle = "rgb(0, 0, 0)";
 	ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);//redraw a white background for resetting the screen
 
-	ctx.fillStyle = "rgb(0, 0, 0)";
-	//ctx.textFont("20px Arial");
+	ctx.fillStyle = "rgb(255, 255, 255)";
 	ctx.fillText("Speed: " + speed, 20, 20);
 	ctx.fillText("Sea Level: " + seaLevel, 20, 40);
 	ctx.fillText("Cam X: " + cam.x, 20, 60);
 	ctx.fillText("Cam Y: " + cam.y, 20, 80);
 	ctx.fillText("Mode: " + player.mode, 20, 100);
-	//console.log(cam.x + " " + cam.y);
-	
 
 	game();
 
-	//console.log(player.x + " " + xDist)
-
-	//if(frameClick > 100) {
-		//ctx.drawImage(imgs.get("test2"), 30, 30);
-	//}
 	//ctx.drawImage(imgs.get("MoonBackground"), 30, 30);
-
 
 	frameClick++;
 

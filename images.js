@@ -45,5 +45,57 @@ ImageCollection.prototype.get = function(name){
 	return this.images[name];
 }
 
-//var backgroundImage = document.getElementsById("image");
-//backgroundImage.src = "https://replit.com/@ZeRedBarron/HTML-Base#Moon%20Background.png";
+var imgs = new ImageCollection([
+	{
+		name: "test1",
+		url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Maestro_Batik_Tulis_di_Imogiri.jpg/500px-Maestro_Batik_Tulis_di_Imogiri.jpg"
+	},
+	{
+		name: "MoonBackground",
+		url: "Moon Background 2.png"
+	},
+	{
+		name: "BlockTexture",
+		url: "block_01.png"
+	},
+	{
+		name: "BlockTexture2",
+		url: "block_02.png"
+	},
+	{
+		name: "BlockTexture3",
+		url: "block_03.png"
+	},
+	{
+		name: "BlockTexture4",
+		url: "block_04.png"
+	},
+	{
+		name: "BlockTexture5",
+		url: "block_05.png"
+	},
+	{
+		name: "BlockTexture6",
+		url: "block_06.png"
+	},
+	{
+		name: "BlockTexture7",
+		url: "block_07.png"
+	},
+	{
+		name: "BlockTexture8",
+		url: "block_08.png"
+	},
+	{
+		name: "BlockTexture9",
+		url: "block_09.png"
+	},
+	{
+		name: "BlockTexture10",
+		url: "block_10.png"
+	},
+	{
+		name: "BlockTexture11",
+		url: "block_11.png"
+	},
+]);

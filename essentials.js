@@ -10,6 +10,10 @@ var keys = [], clicked = false, mouseX, mouseY;//Mouse and keyboard controls
 
 var inter, runGame, frameClick = 0;
 
+var sound = new Howl ({
+	src: ["pianomoment.mp3"]
+});
+
 bdy.addEventListener("keydown", function(e) {
 	keys[e.keyCode] = true;
 });
@@ -81,6 +85,11 @@ function random(min, max) {
 	var newMax = max - min;
 	return (Math.random() * newMax) + min;
 }//Tamney's Natani's random function
+
+function randomInt(min, max) {
+	var newMax = max - min;
+	return Math.round((Math.random() * newMax) + min);
+}
 
 function constrain(aNumber, aMin, aMax) { 
 	return aNumber > aMax ? aMax : aNumber < aMin ? aMin : aNumber; 

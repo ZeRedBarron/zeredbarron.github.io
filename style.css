@@ -4,12 +4,14 @@ html {
 }
 body {
 	overflow: hidden;
+
+	background-color: black;
 }
 
 canvas {
-	position: absolute;
-	top: 0px;
-	left: 0px;
+	padding: 0;
+    margin: auto;
+    display: block;
 
 	border: black 1px solid;
 }
