@@ -1,5 +1,7 @@
 //
 
+var loaded = false;
+
 //I'm using Derek Leung Image Loader method: https://jsfiddle.net/user/DerekL
 
 //ImageCollection class
@@ -8,12 +10,14 @@ function ImageCollection(list, callback){
     for(var i = 0; i < list.length; i++){
         var img = new Image();
         images[list[i].name] = img;
-        img.onload = function(){
+        window.addEventListener("load", function(){
             total++;
-            if(total == list.length){
-                void(callback && callback());
+            if(total === list.length){
+                loaded = true;
+				console.log("actually here")
             }
-        };
+			console.log("actually here")
+        });
         img.src = list[i].url;
     }
     this.get = function(name){
@@ -29,21 +33,42 @@ function ImageCollection(list, callback) {
 	this.config(list);
 }
 ImageCollection.prototype.config = function(list){
+	var total = this.total
 	for(var i = 0; i < list.length; i++) {
 		var img = new Image();
 		this.images[list[i].name] = img;
-		img.onload = function(){
-			this.total++;
-			if(this.total == list.length) {
-				void(this.callback && this.callback());
-			}
-		};
+		window.addEventListener("load", function(){
+            total++;
+            if(total === list.length){
+                //void(callback && callback());
+				loaded = true;
+            }
+        });
 		img.src = list[i].url;
 	}
 }
 ImageCollection.prototype.get = function(name){
 	return this.images[name];
 }
+ImageCollection.prototype.waitToRun = function(){
+	return new Promise(function(resolve, reject){
+		if(loaded) {
+			resolve();
+		}
+		else {
+			window.addEventListener("load", function(){
+				resolve();
+			});
+		}
+		if(reject) {
+			window.addEventListener("error", function(){
+				throw new Error("Image fetching failed");
+			});
+			
+		}
+	});
+}
+
 
 var imgs = new ImageCollection([
 	{
@@ -99,3 +124,4 @@ var imgs = new ImageCollection([
 		url: "block_11.png"
 	},
 ]);
+

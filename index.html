@@ -4,12 +4,24 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width">
 		<title>Game Home</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@200&display=swap" rel="stylesheet">
 		<link href="style.css" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
-	
-		<canvas id = "canvas"></canvas>
+
+		<div id = "load">
+			<div class = "placer">
+				<h1 id = "loadingBanner">Loading</h1>
+				<span class = "loader"></span>
+			</div>
+		</div>
+		
+		<div id = "game">
+			<canvas id = "canvas"></canvas>
+		</div>
 	
 		<script src = "essentials.js"></script>
 		<script src = "images.js"></script>

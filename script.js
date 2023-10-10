@@ -361,18 +361,18 @@ levelMapIndex = {
 
 levels = [
 	[
-		'                               gggggggggggggggg  g',
-		'                                                  ',
-		'                                                  ',
-		'                     gggggggggggg                 ',
-		'                                                  ',
-		'                                                  ',
-		'p     gggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'ggggggg                            gggggggggggggggg  g',
+		'                                                      ',
+		'                                                      ',
+		'                         gggggggggggg                 ',
+		'                                                      ',
+		'                                                      ',
+		'  p       gggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
 	],
 ];
 
@@ -421,4 +421,8 @@ function runGame() {
 	}
 }
 
-inter = window.setInterval(runGame, 1000 / 60);
+imgs.waitToRun().then(function(){
+	document.getElementById("load").style.display = "none";
+	inter = window.setInterval(runGame, 1000 / 60);
+});
+
