@@ -1,6 +1,6 @@
 
 //Particle Object
-function Particle(x, y, speed, sze, color, angle, life, height) {
+function Particle(x, y, speed, sze, color, angle, life, height, mode) {
 	this.x = x;
 	this.y = y;
 	this.prevX = x;
@@ -18,6 +18,7 @@ function Particle(x, y, speed, sze, color, angle, life, height) {
 	this.dead = false;
 	this.rot = 0;
 	this.startLifeValue = this.life;
+	this.mode = mode;
 }
 Particle.prototype.draw = function() {
 	ctx.save();

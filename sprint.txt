@@ -1,0 +1,11 @@
+10/11 to 10/18
+
+Tomas: Find a few sounds and use howler.js to set up a simple sound interface. (1-4 hours)
+
+Eduardo: Build a collection of details to add to the world i.e. spikes, light post, trees. (2-4 hours)
+
+Paul: Organize the image files (10 minutes), implement flight animations(1 hour), fully implement spikes (30 minutes), implent enviornmental particles (fireflies, rain.) (1 hour.)  Consolidate Tomas's and Eduardo's work. (10-30 minutes)  
+
+on 10/18: commit shippable build to Github
+
+Note, times are estimates.

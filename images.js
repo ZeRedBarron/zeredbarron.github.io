@@ -5,29 +5,8 @@ var loaded = false;
 //I'm using Derek Leung Image Loader method: https://jsfiddle.net/user/DerekL
 
 //ImageCollection class
-function ImageCollection(list, callback){
-    var total = 0, images = {};
-    for(var i = 0; i < list.length; i++){
-        var img = new Image();
-        images[list[i].name] = img;
-        window.addEventListener("load", function(){
-            total++;
-            if(total === list.length){
-                loaded = true;
-				console.log("actually here")
-            }
-			console.log("actually here")
-        });
-        img.src = list[i].url;
-    }
-    this.get = function(name){
-        return images[name];
-    };
-}
-
-function ImageCollection(list, callback) {
+function ImageCollection(list) {
 	this.list = list;
-	this.callback = callback;
 	this.total = 0;
 	this.images = {};
 	this.config(list);
@@ -40,7 +19,6 @@ ImageCollection.prototype.config = function(list){
 		window.addEventListener("load", function(){
             total++;
             if(total === list.length){
-                //void(callback && callback());
 				loaded = true;
             }
         });
@@ -71,10 +49,6 @@ ImageCollection.prototype.waitToRun = function(){
 
 
 var imgs = new ImageCollection([
-	{
-		name: "test1",
-		url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Maestro_Batik_Tulis_di_Imogiri.jpg/500px-Maestro_Batik_Tulis_di_Imogiri.jpg"
-	},
 	{
 		name: "MoonBackground",
 		url: "Moon Background 2.png"
@@ -123,5 +97,42 @@ var imgs = new ImageCollection([
 		name: "BlockTexture11",
 		url: "block_11.png"
 	},
+	{
+		name: "BlockTexture12",
+		url: "block_12.png"
+	},
+	{
+		name: "WoodTexture",
+		url: "wood_block_01.png",
+	},
+  {
+    name: "WoodTexture2",
+    url: "wood_block_02.png",
+  },
+  {
+    name: "WoodTexture3",
+    url: "wood_block_03.png",
+  },
+  {
+    name: "WoodTexture4",
+    url: "wood_block_04.png",
+  },
+  {
+    name: "WoodTexture5",
+    url: "wood_block_05.png",
+  },
+  {
+    name: "PlayerTexture",
+    url: "player_block.png",
+  }
+  ,
+  {
+    name: "PlayerTexture2",
+    url: "player_block_02.png",
+  },
+	{
+		name: "blank",
+		url: "blank_01.png"
+	}
 ]);
 

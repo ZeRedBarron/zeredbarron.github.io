@@ -71,6 +71,9 @@ function randomBlock() {
 		case 11:
 			return "BlockTexture11";
 		break;
+		case 12:
+			return "BlockTexture12";
+		break;
 	}
 }
 
@@ -113,17 +116,32 @@ function Player(x, y, mode) {
 	this.mode = mode;
 }
 Player.prototype.draw = function() {
-	ctx.fillStyle = "rgb(255, 0, 0)";
-	ctx.save();
-	ctx.translate(this.x, this.y);
-	ctx.rotate(this.angle * Math.PI / 180);
-	if(!this.jumping) {
-		for(var i = 0; i <= 3; i++) {
-			playerParticles.push(new Particle(this.x - blockSize/2 + speed, this.y + blockSize/2 - 2 + random(0, -12), undefined, 4, [255, 255, 255], undefined, random(10, 30), random(0.5, 3.5)));	
+	if(this.mode === "ground") {
+		ctx.fillStyle = "rgb(255, 0, 0)";
+		ctx.save();
+		ctx.translate(this.x, this.y);
+		ctx.rotate(this.angle * Math.PI / 180);
+		if(!this.jumping) {
+			for(var i = 0; i <= 3; i++) {
+				playerParticles.push(new Particle(this.x - blockSize/2 + speed, this.y + blockSize/2 - 2 + random(0, -12), undefined, 4, [255, 255, 255], undefined, random(10, 30), random(0.5, 3.5), "fall"));	
+			}
 		}
+		ctx.drawImageC(imgs.get("PlayerTexture2"), 0, 0, this.w, this.h);
+		ctx.restore();
+	} else if("flight") {
+		ctx.fillStyle = "rgb(255, 0, 0)";
+		ctx.save();
+		ctx.translate(this.x, this.y);
+		ctx.rotate(this.angle * Math.PI / 180);
+		if(!this.jumping) {
+			for(var i = 0; i <= 3; i++) {
+				playerParticles.push(new Particle(this.x - blockSize/2 + speed, this.y, random(-2, 2), 4, [255, 255, 255], random(90, 270), random(10, 30), random(0.5, 3.5), "fly"));	
+			}
+		}
+		ctx.rect(0, 0, this.w, this.h);
+		ctx.restore();
 	}
-	ctx.rect(0, 0, this.w, this.h);
-	ctx.restore();
+	
 }
 Player.prototype.update = function() {
 	if(this.mode === "ground") {
@@ -135,6 +153,9 @@ Player.prototype.update = function() {
 		this.angle += 5;
 	    
 		for(var i = 0; i < blocks.length; i++){
+			if(collide(this, blocks[i]) && blocks[i].type === "s") {
+				update();
+			}
 			if(blocks[i].half && collideHalf(this, blocks[i])){
 				this.gravity = 0;
 				this.angle = close([0, 90, 180, 270, 360], this.angle);
@@ -262,11 +283,18 @@ Block.prototype.display = function(drawn) {
 	this.prevX = this.x;
 	this.prevY = this.y;
 	
-	ctx.fillStyle = "rgb(0, 0, 0)";
+	ctx.fillStyle = "rgb(255, 255, 255)";
 	ctx.strokeStyle = "rgb(0, 0, 0)";
 	if(this.w > 1) {
-		//ctx.rect(this.x, this.y, this.w, this.h);
-		ctx.drawImageC(this.image, this.x, this.y, this.w, this.h);
+		switch(this.type) {
+			case "g":
+				ctx.drawImageC(this.image, this.x, this.y, this.w, this.h);
+			break;
+			case 's':
+				ctx.rect(this.x, this.y, this.w, this.h);
+			break;
+		}
+		
 	}
 	if (drawn) {
 		void((this.fadeIn()) ? this.fadeIn:null);
@@ -338,7 +366,12 @@ function game() {
 	
 	for(var i = playerParticles.length - 1; i > 0; i--) {
 		playerParticles[i].playerDraw();
-		playerParticles[i].updateFall();
+		if(playerParticles[i].mode === "fall") {
+			playerParticles[i].updateFall();
+		} else if (playerParticles[i].mode === "fly") {
+			playerParticles[i].updateFly();
+		}
+		
 		if(playerParticles[i].dead) {
 			playerParticles.splice(i, 1);
 			continue;
@@ -357,6 +390,7 @@ function game() {
 levelMapIndex = {
 	'p':'player',
 	'g':'normal',
+	's':'spike',
 };
 
 levels = [
@@ -367,7 +401,7 @@ levels = [
 		'                         gggggggggggg                 ',
 		'                                                      ',
 		'                                                      ',
-		'  p       gggggggggggggggggggggggggggggggggggggggggggg',
+		'  p      sgggggggggggggggggggggggggggggggggggggggggggg',
 		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
 		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
 		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
@@ -390,6 +424,9 @@ function update() {
 				case "normal":
 					blocks.push(new Block(j * blockSize, i * blockSize, levelMap[i][j], imgs.get(randomBlock())));
 				break;
+				case "spike":
+					blocks.push(new Block(j * blockSize, i * blockSize, levelMap[i][j], imgs.get(randomBlock())));
+				break;
 			}
 		}
 		if(i ===  levelMap.length + 1) {
@@ -399,30 +436,4 @@ function update() {
 }
 config();
 
-function runGame() {
-	ctx.fillStyle = "rgb(0, 0, 0)";
-	ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);//redraw a white background for resetting the screen
-
-	ctx.fillStyle = "rgb(255, 255, 255)";
-	ctx.fillText("Speed: " + speed, 20, 20);
-	ctx.fillText("Sea Level: " + seaLevel, 20, 40);
-	ctx.fillText("Cam X: " + cam.x, 20, 60);
-	ctx.fillText("Cam Y: " + cam.y, 20, 80);
-	ctx.fillText("Mode: " + player.mode, 20, 100);
-
-	game();
-
-	//ctx.drawImage(imgs.get("MoonBackground"), 30, 30);
-
-	frameClick++;
-
-	if(speed < 1) {
-		speed = 1;
-	}
-}
-
-imgs.waitToRun().then(function(){
-	document.getElementById("load").style.display = "none";
-	inter = window.setInterval(runGame, 1000 / 60);
-});
 
