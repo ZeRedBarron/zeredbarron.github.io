@@ -1,3 +1,0 @@
-Game name: Horizon Hopper
-
-Credits to https://cssloaders.github.io/ for loading
