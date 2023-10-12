@@ -1,0 +1,73 @@
+
+//Particle Object
+function Particle(x, y, speed, sze, color, angle, life, height, mode) {
+	this.x = x;
+	this.y = y;
+	this.prevX = x;
+	this.prevY = y;
+	this.gravity = -height;
+	this.originalGrav = -height;
+	this.w = sze;
+	this.h = sze;
+	this.col = color;
+	this.size = sze;
+	this.speed = speed;
+	this.angle = angle;
+	this.life = life;
+	this.startLife = 0;
+	this.dead = false;
+	this.rot = 0;
+	this.startLifeValue = this.life;
+	this.mode = mode;
+}
+Particle.prototype.draw = function() {
+	ctx.save();
+	ctx.translate(this.x, this.y);
+	
+	ctx.fillStyle = "rgba(" + this.col[0] + "," + this.col[1] + "," + this.col[2] + "," + this.life/this.startLifeValue + ")"
+	ctx.beginPath();
+	ctx.ellipse(0, 0, this.size/2, this.size/2, 0, 0, Math.PI*8);
+	ctx.fill();
+	ctx.closePath();
+	ctx.restore();
+};
+Particle.prototype.updateFly = function() {
+	this.x += Math.cos(this.angle * Math.PI/180) * this.speed;
+	this.y += Math.sin(this.angle * Math.PI/180) * this.speed;
+	
+	this.rot++;
+	
+	this.life--;
+	if(this.life < 0) {
+		this.dead = true;
+	}
+};
+Particle.prototype.updateFall = function() {
+	this.prevX = this.x;
+    this.prevY = this.y;
+
+    this.gravity += 0.18;
+    this.y += this.gravity;
+
+	for(var i in blocks) {
+        if(collideHalf(this, blocks[i])) {
+            this.gravity = this.originalGrav / 2;
+            this.y = (this.prevY < blocks[i].prevY) ? blocks[i].y - this.h/2 - blockSize/2: blocks[i].y + blockSize/2 + this.h/2;
+			this.originalGrav /= 2;
+        }
+    }
+
+	/*for(var i in blocks){
+		if(collide(this, blocks[i])){
+			this.x = (this.prevX < blocks[i].prevX) ? blocks[i].x - this.w : blocks[i].x + blocks[i].h;
+		}
+	}*/
+
+	this.x += random(-2, 1);
+	
+	this.life--;
+	if(this.life < 0) {
+		this.dead = true;
+	}
+};
+
