@@ -1,6 +1,4 @@
 
-//All setup
-
 //Variables for the blocks and platformer stuff.
 var blockSize = 45;
 
@@ -20,6 +18,8 @@ var xDist = 0;//how far along we are.
 
 var particles = [];
 var playerParticles = [];
+var rain = [];
+var splashes = [];
 
 var center = {
 	x: window.innerWidth/2,
@@ -95,9 +95,17 @@ function config() {
 	
 }
 
-/*Array.prototype.min = function (){
-	return Math.min.apply(null, this);
-};*/
+function raining() {
+	//for(var i = 0; i < 2; i++) {
+		rain.push(new RainParticle(
+			cam.x,
+			120,
+			4,
+			5,
+			{r: 255, g: 255, b: 255},
+		))
+	//}
+}
 
 //Player Object
 function Player(x, y, mode) {
@@ -123,7 +131,7 @@ Player.prototype.draw = function() {
 		ctx.rotate(this.angle * Math.PI / 180);
 		if(!this.jumping) {
 			for(var i = 0; i <= 3; i++) {
-				playerParticles.push(new Particle(this.x - blockSize/2 + speed, this.y + blockSize/2 - 2 + random(0, -12), undefined, 4, [255, 255, 255], undefined, random(10, 30), random(0.5, 3.5), "fall"));	
+				playerParticles.push(new Particle(this.x - blockSize/2 + speed, this.y + blockSize/2 - 2 + random(0, -12), undefined, 4, [255, 255, 255], undefined, random(10, 30), random(0.5, 3.5), "fall", true, true));	
 			}
 		}
 		ctx.drawImageC(imgs.get("PlayerTexture2"), 0, 0, this.w, this.h);
@@ -135,10 +143,10 @@ Player.prototype.draw = function() {
 		ctx.rotate(this.angle * Math.PI / 180);
 		if(!this.jumping) {
 			for(var i = 0; i <= 3; i++) {
-				playerParticles.push(new Particle(this.x - blockSize/2 + speed, this.y, random(-2, 2), 4, [255, 255, 255], random(90, 270), random(10, 30), random(0.5, 3.5), "fly"));	
+				playerParticles.push(new Particle(this.x - blockSize/2 + speed, this.y + 12, random(-2, 2), 4, [255, 255, 255], random(90, 270), random(10, 30), random(0.5, 3.5), "fly", false, true));	
 			}
 		}
-		ctx.rect(0, 0, this.w, this.h);
+		ctx.drawImageC(imgs.get("PlayerTextureFlight"), 0, -1, this.w + 19, this.h + 19);
 		ctx.restore();
 	}
 	
@@ -203,8 +211,8 @@ Player.prototype.update = function() {
 	
 		for(var i = 0; i < blocks.length; i++){
 			if(collide(this, blocks[i]) && !blocks[i].half){
-				//update();
 				this.x = (this.prevX < blocks[i].prevX) ? blocks[i].x - this.w : blocks[i].x + blockSize;
+				//update();
 			}
 		}
 		
@@ -217,10 +225,8 @@ Player.prototype.update = function() {
 		*/
 	    
 	    if((keys[32] || keys[38]) && this.canJump) {
-	        this.gravity = -8;
+	        this.gravity = -7.5;
 			this.canJump = false;
-			//console.log("hi");
-			
 	    }
 	
 		if(this.angle != close([0, 90, 180, 270, 360], this.angle)) {
@@ -258,9 +264,6 @@ Player.prototype.update = function() {
 		}
 
 		this.fallRate = constrain(this.fallRate, -this.flightSensitivity, this.flightSensitivity);
-
-		
-		
 	}
 
 	speed = ((seaLevel - this.y)/50) + 3;
@@ -291,7 +294,7 @@ Block.prototype.display = function(drawn) {
 				ctx.drawImageC(this.image, this.x, this.y, this.w, this.h);
 			break;
 			case 's':
-				ctx.rect(this.x, this.y, this.w, this.h);
+				ctx.drawImageC(this.image, this.x, this.y, this.w, this.h);
 			break;
 		}
 		
@@ -330,19 +333,45 @@ Block.prototype.fadeOut = function() {
 	}
 }
 
-
 function PlayerParticle() {
 	Particle.call(this, [this.prevX, this.prevY, 1, 3, [0, 0, 0], random(180, 210)]);
 }
 PlayerParticle.prototype = Object.create(Particle.prototype);
-Particle.prototype.playerDraw = function() {
+
+function RainParticle(x, y, fall, sze, color) {
+	this.x = x;
+	this.y = y;
+	this.prevX = x;
+	this.prevY = y;
+	this.w = sze;
+	this.h = sze;
+	this.col = color;
+	this.size = sze;
+	this.dead = false;
+}
+RainParticle.prototype.drawRain = function(){
 	ctx.save();
 	ctx.translate(this.x, this.y);
-	
-	ctx.fillStyle = "rgba(" + this.col[0] + "," + this.col[1] + "," + this.col[2] + "," + this.life/this.startLifeValue + ")"
-	ctx.rect(0, 0, this.size, this.size, 0, 0);
+	ctx.fillStyle = "rgb(" + this.col.r + "," + this.col.g + "," + this.col.b + "," + ")";
+	ctx.fill();
+	ctx.rect(0, 0, this.sze, this.sze * 2);
 	ctx.restore();
-}
+};
+RainParticle.prototype.updateFall = function() {
+	this.prevX = this.x;
+	this.prevY = this.y;
+
+	this.y += this.fall;
+
+	for(var i in blocks) {
+		if(collideHalf(this, blocks[i])) {
+			this.dead = true;
+			/*this.gravity = this.originalGrav / 2;
+			this.y = (this.prevY < blocks[i].prevY) ? blocks[i].y - this.h/2 - blockSize/2: blocks[i].y + blockSize/2 + this.h/2;
+			this.originalGrav /= 2;*/
+		}
+	}
+};
 
 var player = new Player(undefined, undefined, "ground");
 
@@ -361,7 +390,6 @@ function game() {
 		} else {
 			blocks[i].display(false);
 		}
-		//blocks[i].display();
 	}
 	
 	for(var i = playerParticles.length - 1; i > 0; i--) {
@@ -371,9 +399,26 @@ function game() {
 		} else if (playerParticles[i].mode === "fly") {
 			playerParticles[i].updateFly();
 		}
-		
 		if(playerParticles[i].dead) {
 			playerParticles.splice(i, 1);
+			continue;
+		}
+	}
+
+	//raining();
+	for(var i = rain.length - 1; i > 0; i--) {
+		rain[i].drawRain();
+		rain[i].updateFall();
+		if(rain[i].dead) {
+			rain.splice(i, 1);
+			continue;
+		}
+	}
+	for(var i = splashes.length - 1; i > 0; i--) {
+		splashes[i].playerDraw();
+		splashes[i].updateFall();
+		if(splashes[i].dead) {
+			splashes.splice(i, 1);
 			continue;
 		}
 	}
@@ -395,18 +440,18 @@ levelMapIndex = {
 
 levels = [
 	[
-		'ggggggg                            gggggggggggggggg  g',
-		'                                                      ',
-		'                                                      ',
-		'                         gggggggggggg                 ',
-		'                                                      ',
-		'                                                      ',
-		'  p      sgggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
-		'gggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'                                                                                                              ',
+		'                                                                                                              ',
+		'                                                                                                              ',
+		'                                                                                                              ',
+		'                                                                                                              ',
+		'                                                                                                              ',
+		'                                                                                                              ',
+		'                                              ss           ss        ggggg       ss        gggg         gggggggggggggggggg',
+		'p        ggggggggggssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
 	],
 ];
 
@@ -425,7 +470,7 @@ function update() {
 					blocks.push(new Block(j * blockSize, i * blockSize, levelMap[i][j], imgs.get(randomBlock())));
 				break;
 				case "spike":
-					blocks.push(new Block(j * blockSize, i * blockSize, levelMap[i][j], imgs.get(randomBlock())));
+					blocks.push(new Block(j * blockSize, i * blockSize, levelMap[i][j], imgs.get("Spike")));
 				break;
 			}
 		}
@@ -435,5 +480,3 @@ function update() {
 	}
 }
 config();
-
-

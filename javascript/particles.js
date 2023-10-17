@@ -1,6 +1,6 @@
 
 //Particle Object
-function Particle(x, y, speed, sze, color, angle, life, height, mode) {
+function Particle(x, y, speed, sze, color, angle, life, height, mode, wiggle, die) {
 	this.x = x;
 	this.y = y;
 	this.prevX = x;
@@ -19,6 +19,15 @@ function Particle(x, y, speed, sze, color, angle, life, height, mode) {
 	this.rot = 0;
 	this.startLifeValue = this.life;
 	this.mode = mode;
+	this.wiggle = wiggle;
+	this.die = die;
+	this.config();
+}
+Particle.prototype.config = function() {
+	if(!this.die) {
+		this.life = 1;
+		this.startLifeValue = 1;
+	}
 }
 Particle.prototype.draw = function() {
 	ctx.save();
@@ -31,13 +40,23 @@ Particle.prototype.draw = function() {
 	ctx.closePath();
 	ctx.restore();
 };
+Particle.prototype.playerDraw = function() {
+	ctx.save();
+	ctx.translate(this.x, this.y);
+
+	ctx.fillStyle = "rgba(" + this.col[0] + "," + this.col[1] + "," + this.col[2] + "," + this.life/this.startLifeValue + ")"
+	ctx.rect(0, 0, this.size, this.size, 0, 0);
+	ctx.restore();
+}
 Particle.prototype.updateFly = function() {
 	this.x += Math.cos(this.angle * Math.PI/180) * this.speed;
 	this.y += Math.sin(this.angle * Math.PI/180) * this.speed;
 	
 	this.rot++;
-	
-	this.life--;
+
+	if(this.die) {
+		this.life--;
+	}
 	if(this.life < 0) {
 		this.dead = true;
 	}
@@ -62,10 +81,13 @@ Particle.prototype.updateFall = function() {
 			this.x = (this.prevX < blocks[i].prevX) ? blocks[i].x - this.w : blocks[i].x + blocks[i].h;
 		}
 	}*/
-
-	this.x += random(-2, 1);
+	if(this.wiggle){
+		this.x += random(-2, 1);
+	}
 	
-	this.life--;
+	if(this.die) {
+		this.life--;
+	}
 	if(this.life < 0) {
 		this.dead = true;
 	}

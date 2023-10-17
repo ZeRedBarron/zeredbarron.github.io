@@ -105,34 +105,45 @@ var imgs = new ImageCollection([
 		name: "WoodTexture",
 		url: "graphics/wood_block_01.png",
 	},
-  {
-    name: "WoodTexture2",
-    url: "graphics/wood_block_02.png",
-  },
-  {
-    name: "WoodTexture3",
-    url: "graphics/wood_block_03.png",
-  },
-  {
-    name: "WoodTexture4",
-    url: "graphics/wood_block_04.png",
-  },
-  {
-    name: "WoodTexture5",
-    url: "graphics/wood_block_05.png",
-  },
-  {
-    name: "PlayerTexture",
-    url: "player_block.png",
-  }
-  ,
-  {
-    name: "PlayerTexture2",
-    url: "graphics/player_block_02.png",
-  },
+    {
+    	name: "WoodTexture2",
+    	url: "graphics/wood_block_02.png",
+    },
+    {
+    	name: "WoodTexture3",
+    	url: "graphics/wood_block_03.png",
+    },
+    {
+    	name: "WoodTexture4",
+    	url: "graphics/wood_block_04.png",
+    },
+    {
+    	name: "WoodTexture5",
+    	url: "graphics/wood_block_05.png",
+    },
+    {
+    	name: "PlayerTexture",
+    	url: "player_block.png",
+    },
+    {
+    	name: "PlayerTexture2",
+	  	url: "graphics/player_block_02.png",
+    },
 	{
 		name: "blank",
 		url: "blank_01.png"
+	},
+	{
+		name: "PlayerTextureFlight",
+		url: "graphics/player_flight.png"
+	},
+	{
+		name: "Spike",
+		url: "graphics/spike_01.png"
+	},
+	{
+		name: "LeafTexture",
+		url: "graphics/leaves_01.png"
 	}
 ]);
 
