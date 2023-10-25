@@ -9,3 +9,13 @@ Paul: Organize the image files (10 minutes) (done 10/12), implement flight anima
 on 10/18: commit shippable build to Github
 
 Note, times are estimates.
+
+10/18 to 10/25
+
+Paul: Finish envionmental particles. (2-3 hours)  Implement lamps. (1 hour)  Implement portal for flight. (1 hour)
+
+Eduardo: Finish custom pixel font. (1-2 hours)  Make or at least start on the menu graphic (2-4 hours)
+
+Tomas: Find and select button sounds (15 minutes)  Fully design the layout of the menus. (1-2 hours)
+
+Again, estimates.

@@ -2,7 +2,7 @@
 //Variables for the blocks and platformer stuff.
 var blockSize = 45;
 
-var player, blocks = [];
+var player, blocks = [], lamps = [], portals = [];
 
 var update;
 var randomBlock;
@@ -15,6 +15,8 @@ var speed = 1;//This is the scrolling speed
 var sensitivity = 45;//the higher the less sensitive it is
 var seaLevel = 0;
 var xDist = 0;//how far along we are. 
+var renderDist = 500;//How far from the player blocks will spawn
+var lampClickDist = 200;//How far from the player lamps will turn on
 
 var particles = [];
 var playerParticles = [];
@@ -29,6 +31,12 @@ var screenSize = {
 	w: canvas.width,
 	h: canvas.height
 }
+
+function configureSize() {
+	renderDist = screenSize.w/3;
+	lampClickDist = renderDist/3;
+}
+configureSize();
 
 var cam = {
 	x: 0,
@@ -225,7 +233,7 @@ Player.prototype.update = function() {
 		*/
 	    
 	    if((keys[32] || keys[38]) && this.canJump) {
-	        this.gravity = -7.5;
+	        this.gravity = -6.5;
 			this.canJump = false;
 	    }
 	
@@ -296,6 +304,9 @@ Block.prototype.display = function(drawn) {
 			case 's':
 				ctx.drawImageC(this.image, this.x, this.y, this.w, this.h);
 			break;
+			case '1':
+				ctx.drawImageC(this.image, this.x, this.y, this.w, this.h);
+			break;
 		}
 		
 	}
@@ -331,6 +342,80 @@ Block.prototype.fadeOut = function() {
 		}
 		
 	}
+}
+
+function PortalChange(x, y) {
+	this.x = x;
+	this.y = y;
+	this.w = blockSize;
+	this.h = blockSize;
+}
+PortalChange.prototype.all = function() {
+	ctx.fillStyle = "rgb(255, 255, 255)";
+	ctx.rect(this.x, this.y, this.w, this.h);
+
+	if(collide(this, player)) {
+		player.mode = "flight";
+	}
+}
+
+function Lamp() {
+	Block.apply(this, arguments);
+	this.upperLit = false;
+	this.clickedOn = false;
+	this.clickedOff = false;
+}
+Lamp.prototype = Object.create(Block.prototype);
+Lamp.prototype.display = function(drawn, lit) {
+	this.prevX = this.x;
+	this.prevY = this.y;
+	
+	if(this.w > 1) {
+		switch(this.type) {
+			case "1":
+				ctx.drawImageC(imgs.get("LampBase"), this.x, this.y, this.w, this.h);
+			break;
+			case "2":
+				if(lit){
+					ctx.drawImageC(imgs.get("LampMiddleLit"), this.x, this.y, this.w, this.h);
+				} else {
+					ctx.drawImageC(imgs.get("LampMiddleDark"), this.x, this.y, this.w, this.h);
+				}
+			break;
+			case "3":
+				if(lit){
+					ctx.drawImageC(imgs.get("LampTopLit"), this.x, this.y, this.w, this.h);
+					this.upperLit = true;
+				} else {
+					ctx.drawImageC(imgs.get("LampTopDark"), this.x, this.y, this.w, this.h);
+					this.upperLit = false;
+				}
+				
+			break;
+		}
+
+	}
+	if (drawn) {
+		void((this.fadeIn()) ? this.fadeIn:null);
+	} else {
+		this.fadeOut();
+	}
+
+	if(this.upperLit) {
+		
+	}
+
+	if(this.upperLit && !this.clickedOn) {
+		lampClick();
+		this.clickedOn = true;
+		this.clickedOff = false;
+	}
+	if(!this.upperLit && this.clickedOn && !this.clickedOff) {
+		lampClick();
+		this.clickedOn = false;
+		this.clickedOff = true;
+	}
+	
 }
 
 function PlayerParticle() {
@@ -378,6 +463,8 @@ var player = new Player(undefined, undefined, "ground");
 function game() {
 	//Put background here.
 
+	//ctx.drawImage(imgs.get("backgroundTest"), 0, 0, blockSize * 20, blockSize * 10);
+
 	cam.x = lerp(cam.x, window.innerWidth / 2 - 20 / 2 - player.x, 0.1);
     cam.y = lerp(cam.y, window.innerHeight / 2 - 20 / 2 - player.y, 0.1);
 
@@ -385,11 +472,25 @@ function game() {
 	ctx.translate(cam.x, cam.y);
 
 	for (var i in blocks) {
-		if(1 * (dist(player.x, player.y, blocks[i].x, blocks[i].y) < 500)) {
+		if(1 * (dist(player.x, player.y, blocks[i].x, blocks[i].y) < renderDist)) {
 			blocks[i].display(true);
 		} else {
 			blocks[i].display(false);
 		}
+	}
+	for (var i in lamps) {
+		if(1 * (dist(player.x, player.y, lamps[i].x, lamps[i].y) < renderDist)) {
+			if(1 * (dist(player.x, player.y, lamps[i].x, lamps[i].y) < lampClickDist)) {
+				lamps[i].display(true, true);
+			} else {
+				lamps[i].display(true, false);
+			}	
+		} else {
+			lamps[i].display(false, false);
+		}
+	}
+	for (var i in portals) {
+		portals[i].all();
 	}
 	
 	for(var i = playerParticles.length - 1; i > 0; i--) {
@@ -436,19 +537,23 @@ levelMapIndex = {
 	'p':'player',
 	'g':'normal',
 	's':'spike',
+	'1':'lampB',
+	'2':'lampM',
+	'3':'lampT',
+	'c':'portal',
 };
 
 levels = [
 	[
-		'                                                                                                              ',
-		'                                                                                                              ',
-		'                                                                                                              ',
-		'                                                                                                              ',
-		'                                                                                                              ',
-		'                                                                                                              ',
-		'                                                                                                              ',
-		'                                              ss           ss        ggggg       ss        gggg         gggggggggggggggggg',
-		'p        ggggggggggssggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+		'                                                                                                                          ',
+		'                                                                                                                          ',
+		'                                                                                 3              gggggggggggg              ',
+		'                                                                                 2                                        ',
+		'                                                                                 1                              3         ',
+		'                             3                                               ggggggggggg                        2         ',
+		'      3                      2                                          gg                                      1       c ',
+		'      2                      1                ss           ss        ggggg       ss        gggg         gggggggggggggggggg',
+		'p     1  ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
 		'gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
 		'gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
 		'gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
@@ -457,6 +562,7 @@ levels = [
 
 function update() {
 	blocks = [];
+	lamps = [];
 	levelMap = levels[level];
 
 	for(var i = 0; i < levelMap.length; i++) {
@@ -472,11 +578,26 @@ function update() {
 				case "spike":
 					blocks.push(new Block(j * blockSize, i * blockSize, levelMap[i][j], imgs.get("Spike")));
 				break;
+				case "lampB":
+					lamps.push(new Lamp(j * blockSize, i * blockSize, levelMap[i][j], null));
+				break;
+				case "lampM":
+					lamps.push(new Lamp(j * blockSize, i * blockSize, levelMap[i][j], null));
+				break;
+				case "lampT":
+					lamps.push(new Lamp(j * blockSize, i * blockSize, levelMap[i][j], null));
+				break;
+				case "portal":
+					portals.push(new PortalChange(j * blockSize, i * blockSize));
+				break;
 			}
 		}
 		if(i ===  levelMap.length + 1) {
 			blocks[i].y = seaLevel;
 		}
 	}
+
+	player.gravity = 0;
+	player.angle = 180;
 }
 config();

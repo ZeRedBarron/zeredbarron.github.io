@@ -144,6 +144,30 @@ var imgs = new ImageCollection([
 	{
 		name: "LeafTexture",
 		url: "graphics/leaves_01.png"
+	},
+	{
+		name: "LampBase",
+		url: "graphics/lamppost_bottom.png"
+	},
+	{
+		name: "LampMiddleLit",
+		url: "graphics/lamppost_middle.png"
+	},
+	{
+		name: "LampMiddleDark",
+		url: "graphics/lamppost_middle_dark.png"
+	},
+	{
+		name: "LampTopLit",
+		url: "graphics/lamppost_top.png"
+	},
+	{
+		name: "LampTopDark",
+		url: "graphics/lamppost_top_dark.png"
+	},
+	{
+		name: "backgroundTest",
+		url: "Background_test.png",
 	}
 ]);
 

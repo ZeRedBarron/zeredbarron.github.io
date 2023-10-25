@@ -5,3 +5,11 @@ Ideas given:
 Diffrent shapes to morphe to.
 
 City veiw, towers in the background, lampposts as points.
+
+10/18:
+
+Coins or other points.
+
+Fix sprites on jump.
+
+Double jump

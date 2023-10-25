@@ -10,6 +10,7 @@ function runGame() {
 	ctx.fillText("Cam Y: " + cam.y, 20, 80);
 	ctx.fillText("Mode: " + player.mode, 20, 100);
 	ctx.fillText("Rain Length: " + rain.length, 20, 120);
+	ctx.fillText("Lamps Length: " + lamps.length, 20, 140);
 
 	game();
 
