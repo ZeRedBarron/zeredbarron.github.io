@@ -3,3 +3,5 @@ Game name: Horizon Hopper
 Credits to https://cssloaders.github.io/ for loading animation
 
 Credits to https://jsfiddle.net/DerekL/2F2gu/ for loading function
+
+rain hitting invis blocks better.

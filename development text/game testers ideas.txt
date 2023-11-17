@@ -13,3 +13,23 @@ Coins or other points.
 Fix sprites on jump.
 
 Double jump
+
+10/25
+
+Double jump
+
+weightier jumps,
+
+faster base speed.
+
+Likes "floaty"
+
+checkpoints - lamps
+
+11/15
+
+Checkpoints be special lamps or portal
+
+faster start time
+
+Sticky blocks

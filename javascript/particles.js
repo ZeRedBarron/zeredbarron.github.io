@@ -48,6 +48,14 @@ Particle.prototype.playerDraw = function() {
 	ctx.rect(0, 0, this.size, this.size, 0, 0);
 	ctx.restore();
 }
+Particle.prototype.drawRain = function(){
+	ctx.save();
+	ctx.translate(this.x, this.y);
+	ctx.fillStyle = "rgb(" + this.col.r + "," + this.col.g + "," + this.col.b + "," + ")";
+	ctx.fill();
+	ctx.rect(0, 0, this.sze, this.sze * 2);
+	ctx.restore();
+};
 Particle.prototype.updateFly = function() {
 	this.x += Math.cos(this.angle * Math.PI/180) * this.speed;
 	this.y += Math.sin(this.angle * Math.PI/180) * this.speed;
@@ -67,12 +75,16 @@ Particle.prototype.updateFall = function() {
 
     this.gravity += 0.18;
     this.y += this.gravity;
+	constrain(this.gravity, -this.terminalVelocity, this.terminalVelocity);
 
 	for(var i in blocks) {
-        if(collideHalf(this, blocks[i])) {
+        if(collideHalf(this, blocks[i]) && blocks[i].type !== 's') {
             this.gravity = this.originalGrav / 2;
             this.y = (this.prevY < blocks[i].prevY) ? blocks[i].y - this.h/2 - blockSize/2: blocks[i].y + blockSize/2 + this.h/2;
 			this.originalGrav /= 2;
+			if(!this.die) {
+				this.dead = true;
+			}
         }
     }
 
@@ -89,6 +101,10 @@ Particle.prototype.updateFall = function() {
 		this.life--;
 	}
 	if(this.life < 0) {
+		this.dead = true;
+	}
+
+	if(this.y > 5000) {
 		this.dead = true;
 	}
 };

@@ -10,9 +10,30 @@ var keys = [], clicked = false, mouseX, mouseY;//Mouse and keyboard controls
 
 var inter, runGame, frameClick = 0;
 
-var sound = new Howl ({
-	src: ["Audio/pianomoment.mp3"]
-});
+var scene = "credits";
+
+var center = {
+	x: window.innerWidth/2,
+	y: window.innerHeight/2
+}
+var screenSize = {
+	w: canvas.width,
+	h: canvas.height
+}
+
+var ambienceRunning = false;
+
+var imageLoaded = new Event("imgLoad");
+var soundLoaded  = new Event("soundLoad");
+var fullLoaded = new Event("fullLoad");
+
+var soundComplete = new Promise(function(resolve) {
+	window.addEventListener("soundLoad", resolve);
+})
+var imageComplete = new Promise(function(resolve) {
+	window.addEventListener("imgLoad", resolve);
+})
+
 
 bdy.addEventListener("keydown", function(e) {
 	keys[e.keyCode] = true;
@@ -94,4 +115,75 @@ function randomInt(min, max) {
 function constrain(aNumber, aMin, aMax) { 
 	return aNumber > aMax ? aMax : aNumber < aMin ? aMin : aNumber; 
 }
+
+function normalize(value, min, max) {
+	var normalized = (value - min) / (max - min);
+	return normalized;
+}//https://stats.stackexchange.com/questions/70801/how-to-normalize-data-to-0-1-range
+
+function waitForEvents(eventTarget, eventNames) {
+
+	eventTarget = eventTarget || document;
+	eventNames = (!Array.isArray(eventNames)) ? String(eventNames).split(',') : eventNames;
+
+	// clean event names
+	eventNames = eventNames.map(function(item) {
+		return String(item).trim();
+	})
+	.filter(function(item) {
+		return item !== '';
+	});
+
+	var items = [];
+
+	// create a promise to wait for each event
+	var listeners = eventNames.map(function(eventName) {
+		return new Promise(function(resolve) {
+			eventTarget.addEventListener(eventName, function(e) {
+				items.push(e);
+				resolve();
+			}, false);
+		});
+	});
+
+	// resolve once all events have fired
+	return Promise.all(listeners).then(function() {
+		return Promise.resolve(items);
+	});
+}
+
+
+function Button(txt, x, y, w, h, action) {
+	this.txt = txt;//Self Explanitory
+	this.x = x;
+	this.y = y;
+	this.w = w;
+	this.h = h;
+	this.action = action;//What action
+	this.puffW = this.w + 20;//Size increase
+	this.puffH = this.h + 20;
+}
+Button.prototype = {
+	update: function() {
+		if(mouseX > this.x - this.w / 2 && mouseX < this.x + this.w / 2 && mouseY < this.y + this.h / 2 && mouseY > this.y - this.h / 2) {
+			this.h = lerp(this.h, this.puffH, 0.3);
+			this.w = lerp(this.w, this.puffW, 0.3);
+			if(clicked) {
+				this.action();
+				clicked = false;
+			}
+		}
+		else{
+			this.h = lerp(this.h, this.puffH - 20, 0.3);
+			this.w = lerp(this.w, this.puffW - 20, 0.3);
+		}
+	},
+	displayPause: function() {
+		ctx.drawImageC(imgs.get("pause2"), this.x, this.y, this.w, this.h);
+	},
+	displayPlay: function() {
+		ctx.drawImageC(imgs.get("play2"), this.x, this.y, this.w, this.h);
+	}
+};
+
 
