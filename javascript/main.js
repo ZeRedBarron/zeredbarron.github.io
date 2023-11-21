@@ -2,6 +2,7 @@
 var musicbox = new Music();
 
 function runGame() {
+	bdy.style.cursor = "auto";
 	musicbox.run();
 	
 	ctx.fillStyle = "rgb(" + brightness + ", " + brightness + ", " + brightness + ")";

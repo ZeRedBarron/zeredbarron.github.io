@@ -1,6 +1,4 @@
 //Variables for the blocks and platformer stuff.
-var blockSize = 45;
-
 var player, blocks = [], lamps = [], portals = [], portalPoints = [];
 
 var update;
@@ -333,6 +331,25 @@ Player.prototype.update = function() {
 		for(var i = 0; i < blocks.length; i++){
 			if(collide(this, blocks[i]) && blocks[i].type === "s") {
 				dead = true;
+				if(!this.deathSoundPlayed) {
+					hitWall();
+					for(var i = 100; i > 0; i--) {//x, y, speed, sze, color, angle, life, height, mode, wiggle, die
+						playerParticles.push(new Particle(
+							this.x + random(-blockSize/2, blockSize/2), 
+							this.y + random(-blockSize/2, blockSize/2), 
+							undefined, 
+							4, 
+							[255, 255, 255], 
+							undefined, 
+							random(50, 200), 
+							random(1, 6), 
+							"fall", 
+							false, 
+							true
+						));	
+					}
+				}
+				this.deathSoundPlayed = true;
 			}
 			if(blocks[i].half && collideHalf(this, blocks[i])){
 				if(blocks[i].type !== 't') {
@@ -656,13 +673,11 @@ RainParticle.prototype.updateFall = function() {
 	}
 };
 
-var pauseButton = new Button("Pause", screenSize.w - 100, 100, blockSize, blockSize, function(){
-	if(!paused) {
-		paused = true;
-	} else if (paused) {
-		paused = false;
-	}
-	
+var pauseButton = new Button(null, imgs.get("pause2"), imgs.get("pause2"), screenSize.w - 100, 100, blockSize, blockSize, function(){
+	paused = true;
+});
+var playButton = new Button(null, imgs.get("play2"), imgs.get("play2"), screenSize.w - 100, 100, blockSize, blockSize, function(){
+	paused = false;
 });
 
 var player = new Player(undefined, undefined, "ground");
@@ -751,17 +766,20 @@ function game() {
 	
 	ctx.restore();
 
-	if((!paused) && (!dead)) {
-		pauseButton.displayPause();
+	if(!paused) {
+		pauseButton.all();
 	} else {
-		pauseButton.displayPlay();
+		if(timer.timer === 0) {
+			playButton.all();
+		} else {
+			pauseButton.all();
+		}
 	}
-	pauseButton.update();
+	//console.log(paused + " " + dead);
 
 	if(dead) {
 		paused = true;
 		timer.start();
-		
 	}
 	if(timer.timer === timer.time) {
 		update();

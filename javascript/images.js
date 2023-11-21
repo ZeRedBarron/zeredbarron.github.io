@@ -459,6 +459,10 @@ var imgs = new ImageCollection([
 		url: "graphics/font/space.png",
 	},
 	{
+		name: ".",
+		url: "graphics/font/period.png",
+	},
+	{
 		name: "portalLitFront",
 		url: "graphics/blocks/portal_lit_front.png",
 	},
@@ -534,5 +538,61 @@ var imgs = new ImageCollection([
 		name: "RedWoodTexture3",
 		url: "graphics/blocks/red_trunk3.png",
 	},
+	{
+		name: "backOn",
+		url: "graphics/icons/backbutton_on.png",
+	},
+	{
+		name: "backOff",
+		url: "graphics/icons/backbutton_off.png",
+	},
+	{
+		name: "settingsOn",
+		url: "graphics/icons/gearsettings_on.png",
+	},
+	{
+		name: "settingsOff",
+		url: "graphics/icons/gearsettings_off.png",
+	},
+	{
+		name: "howOn",
+		url: "graphics/icons/helpbutton_on.png",
+	},
+	{
+		name: "howOff",
+		url: "graphics/icons/helpbutton_off.png",
+	},
+	{
+		name: "linksOn",
+		url: "graphics/icons/hyperlinkbutton_on.png",
+	},
+	{
+		name: "linksOff",
+		url: "graphics/icons/hyperlinkbutton_off.png",
+	},
+	{
+		name: "levelSelectOn",
+		url: "graphics/icons/lvlselect_on.png",
+	},
+	{
+		name: "levelSelectOff",
+		url: "graphics/icons/lvlselect_off.png",
+	},
+	{
+		name: "restartOn",
+		url: "graphics/icons/restart_on.png",
+	},
+	{
+		name: "restartOff",
+		url: "graphics/icons/restart_off.png",
+	},
+	{
+		name: "upArrowOn",
+		url: "graphics/icons/uparrowbutton_on.png",
+	},
+	{
+		name: "upArrowOff",
+		url: "graphics/icons/uparrowbutton_off .png",
+	}
 ]);
 

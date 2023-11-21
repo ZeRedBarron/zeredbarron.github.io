@@ -20,6 +20,7 @@ var screenSize = {
 	w: canvas.width,
 	h: canvas.height
 }
+var blockSize = 45;
 
 var ambienceRunning = false;
 
@@ -33,7 +34,6 @@ var soundComplete = new Promise(function(resolve) {
 var imageComplete = new Promise(function(resolve) {
 	window.addEventListener("imgLoad", resolve);
 })
-
 
 bdy.addEventListener("keydown", function(e) {
 	keys[e.keyCode] = true;
@@ -85,7 +85,6 @@ function collide(input1, input2) {
 		input1.y - input2.y < input2.h &&
 		input2.y - input1.y < input1.h;
 }//Block collision function
-
 
 function collideHalf(player, block){
     return player.x + (player.w/2) > block.x - (blockSize/2) &&
@@ -152,37 +151,30 @@ function waitForEvents(eventTarget, eventNames) {
 	});
 }
 
-
-function Button(txt, x, y, w, h, action) {
+function Button(txt, img1, img2, x, y, w, h, action) {
 	this.txt = txt;//Self Explanitory
 	this.x = x;
 	this.y = y;
 	this.w = w;
 	this.h = h;
+	this.img1 = img1;
+	this.img2 = img2;
 	this.action = action;//What action
-	this.puffW = this.w + 20;//Size increase
-	this.puffH = this.h + 20;
 }
-Button.prototype = {
-	update: function() {
-		if(mouseX > this.x - this.w / 2 && mouseX < this.x + this.w / 2 && mouseY < this.y + this.h / 2 && mouseY > this.y - this.h / 2) {
-			this.h = lerp(this.h, this.puffH, 0.3);
-			this.w = lerp(this.w, this.puffW, 0.3);
-			if(clicked) {
-				this.action();
-				clicked = false;
-			}
+Button.prototype.all = function() {
+	if(mouseX > this.x - this.w / 2 && mouseX < this.x + this.w / 2 && mouseY < this.y + this.h / 2 && mouseY > this.y - this.h / 2) {
+		if(!dead) {
+			bdy.style.cursor = "pointer";
+		} else {
+			bdy.style.cursor = "not-allowed";
 		}
-		else{
-			this.h = lerp(this.h, this.puffH - 20, 0.3);
-			this.w = lerp(this.w, this.puffW - 20, 0.3);
+		ctx.drawImageC(this.img2, this.x, this.y, this.w, this.h);
+		if(clicked) {
+			this.action();
+			clicked = false;
 		}
-	},
-	displayPause: function() {
-		ctx.drawImageC(imgs.get("pause2"), this.x, this.y, this.w, this.h);
-	},
-	displayPlay: function() {
-		ctx.drawImageC(imgs.get("play2"), this.x, this.y, this.w, this.h);
+	} else {
+		ctx.drawImageC(this.img1, this.x, this.y, this.w, this.h);
 	}
 };
 
