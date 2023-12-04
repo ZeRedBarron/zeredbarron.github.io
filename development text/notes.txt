@@ -13,3 +13,6 @@ For after presentation:
 Exclematin points
 
 particle spike bush collistions
+
+Fix paritcle collistion with spikes and bushes
+

@@ -1,0 +1,5 @@
+and then whenever you run the script It'll create a js file called level.js in the javascript folder 
+
+(you will have to remove the levels = [] at the top of script.js and the old place where the level was) 
+
+Made by Matthew Anderson

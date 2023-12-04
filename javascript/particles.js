@@ -80,7 +80,7 @@ Particle.prototype.updateFall = function() {
 	switch(scene) {
 		case "game":
 			for(var i = 0; i < blocks.length; i++) {
-				if(collideHalf(this, blocks[i]) && (blocks[i].type !== 's' || blocks[i].type !== 'b')) {
+				if(collideHalf(this, blocks[i]) && blocks[i].type !== 's' && blocks[i].type !== 'b') {
 					this.gravity = this.originalGrav / 2;
 					this.y = (this.prevY < blocks[i].prevY) ? blocks[i].y - this.h/2 - blockSize/2: blocks[i].y + blockSize/2 + this.h/2;
 					this.originalGrav /= 2;
