@@ -1,0 +1,59 @@
+1. Team Name: Dash Devs
+
+2. Team members and jobs:
+* Paul Barron: All programming and music.  KA game project on a larger scale.  (gets big and wobbly)  Music is orchestral, written traditionally (wanted to do full orchestra, but could not.)
+* Eduardo: All art.  Brand new, but turned out well (huge thanks, did not realize how much time this takes)
+* Tomas: Did a little typing out and repetitive work.  Came up with the idea (very insitent)
+
+3. Name: Horizon Hopper (taken from chat gpt, originally DASH)
+
+4. Type of game: Platformer.  Main insperation from Geometry Dash (thankfully not a clone)  Art ideas was taken from KA game called Survivalist II: 
+
+https://www.khanacademy.org/computer-programming/survivalist-ii/5309019793883136
+
+https://www.khanacademy.org/computer-programming/survivalist-ii-trailer/4520047936765952
+
+Genre: Basic Platformer, reflex game
+
+5. How to win or lose: Loss conditions are hitting spikes and walls, winning is completing the level (getting past it all)  No clear end, just ends somewhere now (later fix lol)
+
+6. Language, no engine: Main language is HTML/CSS/JS.  Program's base location is a webpage, renders via WegGL (web graphics library,) 
+Game and menus were handled by JS, and links and loading screens were handled by HTML and CSS. (HTML does the text, CSS is the formatting)
+It has 92 lines of HTML, 129 of CSS, and 2,922 lines of JS
+
+All in all, about 148 mb of data in compressed form, during gameplay, takes up to 800 mb of ram (record 1.5 gig)
+
+7. Why are you particularly proud of your game?  What features were the most difficult to implement?  What problems did you overcome?
+
+What makes this game unique and fun to play? The game is fun because you want to get this endearing little guy to go the distence.  The unique twist makes the game fresh and new (speeding on hieght.)  
+I think the music is unique, lots of games have a beat/electric music, this has organ as the base instrument, a very diffrent choice.
+
+8. Why are you particularly proud of your game?  What features were the most difficult to implement?  What problems did you overcome?
+Most proud: The blocks fading in and out.  Programming like this is quite difficult, so that was the best.
+
+Most difficult: lamp clicks.
+
+Sound was new.  Size was new.  Layout was new.
+
+Look at my projects:
+
+https://www.khanacademy.org/computer-programming/illuminate-platformer-khantober-2020/4757808007036928
+
+https://www.khanacademy.org/computer-programming/gyrometrix-game-khantober-2020/5396908404326400
+
+Explain image diffrences, lack of sound, size, etc.
+
+9. Is your game complete?  What would you like to improve and/or add?  Do you plan to continue working on your game? 
+Not quite.  Few janky edges.  Music not seamed together right.  Want to add another track.  Plan to get it done before it's due.
+
+10. How did your team communicate?  Did it work well?
+
+We used discord, which worked fine.  All I really needed was to tell Eduardo what I needed, and the class times worked perfectly.
+
+11. If you had it to do over again, what would you do differently?  What would you do the same?
+
+Next time, I would not use Replit.  Serious lag issues.  VS and github would be way less of a hassle.
+Put all of the js in one file. (if you remember, almost 3000 lines of js)  It's so satisfying to see that number go up and think "i created this."
+
+The same would be asking my friends for help, and using Cnrl C/V.  JK  Using my base setups, but perhaps doing more local variables.
+

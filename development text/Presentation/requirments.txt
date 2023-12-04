@@ -1,0 +1,24 @@
+Team Presentation Requirements:           
+1.	Team Name
+
+2.	Team Members and Each Member’s Contribution
+
+3.	Game Name
+
+4.	Description of Game including Genre
+
+5.	Game Win/Loss Conditions
+
+6.	Game Engine/Language
+
+7.	What makes this game unique and fun to play?
+
+8.	Why are you particularly proud of your game?  What features were the most difficult to implement?  What problems did you overcome?
+
+9.	Is your game complete?  What would you like to improve and/or add?  Do you plan to continue working on your game?
+
+10.	How did your team communicate?  Did it work well?
+
+11.	If you had it to do over again, what would you do differently?  What would you do the same?
+
+12.	Demonstrate your game.  There should be at least 10 minutes of error-free game play with explanation of what happening.

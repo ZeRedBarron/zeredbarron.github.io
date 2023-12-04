@@ -19,7 +19,7 @@ var text = [
 		"Paul Barron",
 	],
 	[
-		"Organization:",
+		"Idea:",
 		"Tomas Garcia",
 	],
 	[
