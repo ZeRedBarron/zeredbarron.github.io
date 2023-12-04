@@ -46,8 +46,16 @@ Paul: FINSH THIS GAME.
 
 11/15 to 11/22
 
-Tomas: Draw layout of how screen and win screen, find a new loading screen (30 minutes)
+Tomas: Draw layout of how screen and win screen, find a new loading screen (30 minutes)  Level (2 hours)
 
 Eduardo: new trunks, buttons, grass, railings (2 hours)
 
 Paul: Menu Layout, 5 new tracks (5 hours)
+
+11/22 to 11/29
+
+Tomas: Design the level (2 hours)
+
+Eduardo: Main Play Button, Title Font(2 hours)
+
+Paul: Final Game Track, seam tracks together, make main menu, make credits links menu, start button, implement auras, make protal paritcles (7 hours)

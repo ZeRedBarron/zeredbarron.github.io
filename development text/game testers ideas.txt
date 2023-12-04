@@ -33,3 +33,21 @@ Checkpoints be special lamps or portal
 faster start time
 
 Sticky blocks
+
+11/29
+
+how to play button implement
+
+checkpoint for when you enter a portal
+
+level percentage for a certain level
+
+particles distance for when the player flies
+
+At the beginning, make the ground wider
+
+trampoline hint
+
+coins on platforms
+
+trail of coins when you bounce on a trampoline

@@ -77,16 +77,32 @@ Particle.prototype.updateFall = function() {
     this.y += this.gravity;
 	constrain(this.gravity, -this.terminalVelocity, this.terminalVelocity);
 
-	for(var i in blocks) {
-        if(collideHalf(this, blocks[i]) && blocks[i].type !== 's') {
-            this.gravity = this.originalGrav / 2;
-            this.y = (this.prevY < blocks[i].prevY) ? blocks[i].y - this.h/2 - blockSize/2: blocks[i].y + blockSize/2 + this.h/2;
-			this.originalGrav /= 2;
-			if(!this.die) {
-				this.dead = true;
+	switch(scene) {
+		case "game":
+			for(var i = 0; i < blocks.length; i++) {
+				if(collideHalf(this, blocks[i]) && (blocks[i].type !== 's' || blocks[i].type !== 'b')) {
+					this.gravity = this.originalGrav / 2;
+					this.y = (this.prevY < blocks[i].prevY) ? blocks[i].y - this.h/2 - blockSize/2: blocks[i].y + blockSize/2 + this.h/2;
+					this.originalGrav /= 2;
+					if(!this.die) {
+						this.dead = true;
+					}
+				}
 			}
-        }
-    }
+		break;
+		default:
+			for(var i = 0; i < menuBlocks.length; i++) {
+				if(collideHalf(this, menuBlocks[i]) && menuBlocks[i].type !== 's') {
+					this.gravity = this.originalGrav / 2;
+					this.y = (this.prevY < menuBlocks[i].prevY) ? menuBlocks[i].y - this.h/2 - blockSize/2: menuBlocks[i].y + blockSize/2 + this.h/2;
+					this.originalGrav /= 2;
+					if(!this.die) {
+						this.dead = true;
+					}
+				}
+			}
+		break;
+	}
 
 	/*for(var i in blocks){
 		if(collide(this, blocks[i])){
@@ -104,7 +120,7 @@ Particle.prototype.updateFall = function() {
 		this.dead = true;
 	}
 
-	if(this.y > 5000) {
+	if(this.y > 10000) {
 		this.dead = true;
 	}
 };

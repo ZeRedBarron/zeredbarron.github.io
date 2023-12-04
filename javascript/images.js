@@ -236,7 +236,7 @@ var imgs = new ImageCollection([
 	},
 	{
 		name: "O",
-		url: "graphics/font/capital/Capital A.png",
+		url: "graphics/font/capital/Capital O.png",
 	},
 	{
 		name: "P",
@@ -592,7 +592,83 @@ var imgs = new ImageCollection([
 	},
 	{
 		name: "upArrowOff",
-		url: "graphics/icons/uparrowbutton_off .png",
+		url: "graphics/icons/uparrowbutton_off.png",
+	},
+	{
+		name: "downArrowOn",
+		url: "graphics/icons/downarrowbutton_on.png",
+	},
+	{
+		name: "downArrowOff",
+		url: "graphics/icons/downarrowbutton_off.png",
+	},
+	{
+		name: "spikeDown",
+		url: "graphics/blocks/spikemoss_upsidedown.png",
+	},
+	{
+		name: "bush",
+		url: "graphics/blocks/grass01.png",
+	},
+	{
+		name: "fadeLeft",
+		url: "graphics/blocks/lightfade_left.png",
+	},
+	{
+		name: "fadeRight",
+		url: "graphics/blocks/lightfade_right.png",
+	},
+	{
+		name: "rail",
+		url: "graphics/blocks/railing01.png",
+	},
+	{
+		name: "mainButtonPlayOff",
+		url: "graphics/icons/mainplaybuttonoff.png",
+	},
+	{
+		name: "mainPlayButtonOn",
+		url: "graphics/icons/mainplaybutton_on.png",
+	},
+	{
+		name: "Htitle",
+		url: "graphics/font/main font/title_h_white.png",
+	},
+	{
+		name: "Etitle",
+		url: "graphics/font/main font/title_e_white.png",
+	},
+	{
+		name: "Ititle",
+		url: "graphics/font/main font/title_i_white.png",
+	},
+	{
+		name: "Ntitle",
+		url: "graphics/font/main font/title_n_white.png",
+	},
+	{
+		name: "Otitle",
+		url: "graphics/font/main font/title_o_white.png",
+	},
+	{
+		name: "Ptitle",
+		url: "graphics/font/main font/title_p_white.png",
+	},
+	{
+		name: "Rtitle",
+		url: "graphics/font/main font/title_r_white.png",
+	},
+	{
+		name: "Ztitle",
+		url: "graphics/font/main font/title_z_white.png"
+	},
+	{
+		name: " title",
+		url: "graphics/font/space.png"
+	},
+	{
+		name: "ititle",
+		url: "graphics/font/main font/title_trampoline_i.png"
 	}
 ]);
 

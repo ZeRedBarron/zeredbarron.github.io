@@ -1,7 +1,7 @@
 //Variables for the blocks and platformer stuff.
-var player, blocks = [], lamps = [], portals = [], portalPoints = [];
+var player, blocks = [], lamps = [], portals = [], portalPoints = [], menuBlocks = [];
 
-var update;
+var update, updateMenu;
 var randomBlock;
 
 var levelMap;
@@ -9,8 +9,10 @@ var level = 0;
 var levels = [];//This is where the levels will go.
 
 var speed = 1;//This is the scrolling speed
+var menuSpeed = 1;
 var sensitivity = 45;//the higher the less sensitive it is
 var seaLevel = 0;
+var menuSeaLevel = 0;
 var xDist = 0;//how far along we are. 
 var renderDist = 500;//How far from the player blocks will spawn
 var lampClickDist = 200;//How far from the player lamps will turn on
@@ -23,6 +25,9 @@ var brightness = 0;
 var nearPortal = false;
 
 var dead = false;
+var win = false;
+var win2 = !false;
+var winDist;
 
 var firstTime = true;
 var paused = false;
@@ -146,18 +151,16 @@ function randomWood() {
 
 function config() {
 	update();
-
-	var lowest;
-	var blockYs = [];
-	for(var i in blocks) {
-		
-		blockYs.push(blocks[i].y);
-	}
-
+	
 	seaLevel = player.y;
 
 	xDist = player.x;
-	
+}
+
+function configMenu() {
+	updateMenu();
+
+	menuSeaLevel = menuPlayer.y + 6;
 }
 
 function raining() {//x, y, speed, sze, color, angle, life, height, mode, wiggle, die
@@ -329,7 +332,7 @@ Player.prototype.update = function() {
 		this.angle += 5;
 	    
 		for(var i = 0; i < blocks.length; i++){
-			if(collide(this, blocks[i]) && blocks[i].type === "s") {
+			if(collide(this, blocks[i]) && (blocks[i].type === "s"|| blocks[i].type === "S")) {
 				dead = true;
 				if(!this.deathSoundPlayed) {
 					hitWall();
@@ -351,7 +354,7 @@ Player.prototype.update = function() {
 				}
 				this.deathSoundPlayed = true;
 			}
-			if(blocks[i].half && collideHalf(this, blocks[i])){
+			if(blocks[i].half && collideHalf(this, blocks[i]) && blocks[i].type !== "b"){
 				if(blocks[i].type !== 't') {
 					this.gravity = 0;
 				} else {
@@ -367,7 +370,7 @@ Player.prototype.update = function() {
 					this.y = blocks[i].y + (blockSize/2) + (this.h/2);
 				}
 				
-			} else if(collide(this, blocks[i]) && !blocks[i].half){
+			} else if(collide(this, blocks[i]) && !blocks[i].half && blocks[i].type !== "b"){
 				if(blocks[i].type !== 't') {
 					this.gravity = 0;
 				} else {
@@ -407,7 +410,7 @@ Player.prototype.update = function() {
 	    this.x += speed;
 	
 		for(var i = 0; i < blocks.length; i++){
-			if(collide(this, blocks[i]) && !blocks[i].half){
+			if(collide(this, blocks[i]) && !blocks[i].half && blocks[i].type !== "b"){
 				this.x = (this.prevX < blocks[i].prevX) ? blocks[i].x - this.w : blocks[i].x + blockSize;
 				//update();
 				dead = true;
@@ -467,7 +470,29 @@ Player.prototype.update = function() {
 
 		this.angle = 0;
 
-		for(var i in blocks) {
+		for(var i = 0; i < blocks.length; i++) {
+			if(collide(this, blocks[i]) && (blocks[i].type === "s" || blocks[i].type === "S")) {
+				dead = true;
+				if(!this.deathSoundPlayed) {
+					hitWall();
+					for(var i = 100; i > 0; i--) {//x, y, speed, sze, color, angle, life, height, mode, wiggle, die
+						playerParticles.push(new Particle(
+							this.x + random(-blockSize/2, blockSize/2), 
+							this.y + random(-blockSize/2, blockSize/2), 
+							undefined, 
+							4, 
+							[255, 255, 255], 
+							undefined, 
+							random(50, 200), 
+							random(1, 6), 
+							"fall", 
+							false, 
+							true
+						));	
+					}
+				}
+				this.deathSoundPlayed = true;
+			}
 	        if(collide(this, blocks[i])) {
 	            this.y = (this.prevY < blocks[i].prevY) ? blocks[i].y - this.h : blocks[i].y + blocks[i].h;
 	        }
@@ -475,9 +500,29 @@ Player.prototype.update = function() {
 
 		this.x += speed;
 	
-		for(var i in blocks){
+		for(var i = 0; i < blocks.length; i++){
 			if(collide(this, blocks[i])){
 				this.x = (this.prevX < blocks[i].prevX) ? blocks[i].x - this.w : blocks[i].x + blocks[i].h;
+				dead = true;
+				if(!this.deathSoundPlayed) {
+					hitWall();
+					for(var i = 100; i > 0; i--) {//x, y, speed, sze, color, angle, life, height, mode, wiggle, die
+						playerParticles.push(new Particle(
+							this.x + random(-blockSize/2, blockSize/2), 
+							this.y + random(-blockSize/2, blockSize/2), 
+							undefined, 
+							4, 
+							[255, 255, 255], 
+							undefined, 
+							random(50, 200), 
+							random(1, 6), 
+							"fall", 
+							false, 
+							true
+						));	
+					}
+				}
+				this.deathSoundPlayed = true;
 			}
 		}
 
@@ -488,9 +533,143 @@ Player.prototype.update = function() {
 		}
 
 		this.fallRate = constrain(this.fallRate, -this.flightSensitivity, this.flightSensitivity);
+
+		if(dead === false) {
+			this.deathSoundPlayed = false;
+		}
 	}
 
-	speed = ((seaLevel - this.y)/50) + 3;
+	speed = ((seaLevel - this.y)/150) + 3;
+
+	if(this.y > 8000) {
+		dead = true;
+	}
+};
+Player.prototype.menuUpdate = function() {
+	this.prevX = this.x;
+	this.prevY = this.y;
+
+	this.gravity += 0.18;
+	this.y += this.gravity;
+	this.angle += 5;
+
+	for(var i = 0; i < menuBlocks.length; i++){
+		if(collide(this, menuBlocks[i]) && (menuBlocks[i].type === "s"|| menuBlocks[i].type === "S")) {
+			dead = true;
+			if(!this.deathSoundPlayed) {
+				hitWall();
+				for(var i = 100; i > 0; i--) {//x, y, speed, sze, color, angle, life, height, mode, wiggle, die
+					playerParticles.push(new Particle(
+						this.x + random(-blockSize/2, blockSize/2), 
+						this.y + random(-blockSize/2, blockSize/2), 
+						undefined, 
+						4, 
+						[255, 255, 255], 
+						undefined, 
+						random(50, 200), 
+						random(1, 6), 
+						"fall", 
+						false, 
+						true
+					));	
+				}
+			}
+			this.deathSoundPlayed = true;
+		}
+		if(menuBlocks[i].half && collideHalf(this, menuBlocks[i]) && menuBlocks[i].type !== "b"){
+			if(menuBlocks[i].type !== 't') {
+				this.gravity = 0;
+			} else {
+				this.gravity = -10;//Tramps jumper
+				bounceSound();
+			}
+			this.angle = close([0, 90, 180, 270, 360], this.angle);
+
+			if(this.y < menuBlocks[i].y){
+				this.canJump = true;
+				this.y = menuBlocks[i].y - (this.h/2);
+			} else {
+				this.y = menuBlocks[i].y + (blockSize/2) + (this.h/2);
+			}
+
+		} else if(collide(this, menuBlocks[i]) && !menuBlocks[i].half && menuBlocks[i].type !== "b"){
+			if(menuBlocks[i].type !== 't') {
+				this.gravity = 0;
+			} else {
+				this.gravity = -10;//Tramps
+				bounceSound();
+			}
+			this.angle = close([0, 90, 180, 270, 360], this.angle);
+
+			if(this.y < menuBlocks[i].y){
+				this.canJump = true;
+				this.y = menuBlocks[i].y - (blockSize/2) - (this.h/2);
+			} else {
+				this.y = menuBlocks[i].y + (blockSize/2) + (this.h/2);
+			}
+
+		}
+		if(collide(this, menuBlocks[i])) {
+			if(this.prevY < menuBlocks[i].prevY) {
+				this.canJump = true;
+			}
+		}
+	}
+	
+	this.x += menuSpeed;
+
+	for(var i = 0; i < menuBlocks.length; i++){
+		if(collide(this, menuBlocks[i]) && !menuBlocks[i].half && menuBlocks[i].type !== "b"){
+			this.x = (this.prevX < menuBlocks[i].prevX) ? menuBlocks[i].x - this.w : menuBlocks[i].x + blockSize;
+			//update();
+			dead = true;
+			if(!this.deathSoundPlayed) {
+				hitWall();
+				for(var i = 100; i > 0; i--) {//x, y, speed, sze, color, angle, life, height, mode, wiggle, die
+					playerParticles.push(new Particle(
+						this.x + random(-blockSize/2, blockSize/2), 
+						this.y + random(-blockSize/2, blockSize/2), 
+						undefined, 
+						4, 
+						[255, 255, 255], 
+						undefined, 
+						random(50, 200), 
+						random(1, 6), 
+						"fall", 
+						false, 
+						true
+					));	
+				}
+			}
+			this.deathSoundPlayed = true;
+		}
+	}
+
+	/*
+	for(var i in blocks) {
+		if(collide(this, blocks[i])) {
+			this.x = (this.prevX < blocks[i].prevX) ? blocks[i].x - this.w : blocks[i].x + blockSize;
+		}
+	}
+	*/
+
+	if((keys[32] || keys[38]) && this.canJump) {
+		this.gravity = -6.5;
+		this.canJump = false;
+	}
+
+	if(this.angle != close([0, 90, 180, 270, 360], this.angle)) {
+		this.jumping = true;
+	} else {
+		this.jumping = false;
+	}
+
+	this.angle = this.angle % 360;
+
+	if(dead === false) {
+		this.deathSoundPlayed = false;
+	}
+	menuSpeed = ((menuSeaLevel - this.y)/50) + 5;//was 3
 };
 
 function Block(x, y, type, image) {
@@ -500,7 +679,7 @@ function Block(x, y, type, image) {
 	this.h = 0;
 	this.prevX = x;
 	this.prevY = y;
-	this.speed = 5;
+	this.speed = 3;
 
 	this.image = image;
 
@@ -571,13 +750,32 @@ PortalChange.prototype.backLit = function() {
 	ctx.drawImage(imgs.get("portalLitBack"), this.x - blockSize, this.y - blockSize + 5, blockSize * 2, blockSize * 4)
 }
 
+var portalCooldown = 0;
 function PortalChangeDark(x, y) {
 	PortalChange.apply(this, arguments);
+	this.soundPlayed = false;
 }
 PortalChangeDark.prototype.all = function() {
+	
 	if(collide(this, player)) {
-		player.mode = "flight";
-        teleportSound();
+		if(portalCooldown <= 0){
+			teleportSound();
+			if(player.mode === "flight") {
+				player.mode = "ground";
+				portalCooldown = 60;
+			} else {
+				player.mode = "flight";
+				portalCooldown = 60;
+			}
+		}
+		
+		if(!this.soundPlayed) {
+			//teleportSound();
+			
+		}
+		this.soundPlayed = true;
+	} else {
+		this.soundPlayed = !true;
 	}
 }
 
@@ -607,6 +805,8 @@ Lamp.prototype.display = function(drawn, lit) {
 			case "3":
 				if(lit){
 					ctx.drawImageC(imgs.get("LampTopLit"), this.x, this.y, this.w, this.h);
+					ctx.drawImageC(imgs.get("fadeLeft"), this.x - blockSize - (blockSize / 2) - 2, this.y + 11, this.w * 2.5, this.h * 2.5);
+					ctx.drawImageC(imgs.get("fadeRight"), this.x + blockSize + (blockSize / 2) + 2, this.y + 14.5, this.w * 2.5, this.h * 2.5);
 					this.upperLit = true;
 				} else {
 					ctx.drawImageC(imgs.get("LampTopDark"), this.x, this.y, this.w, this.h);
@@ -638,41 +838,6 @@ Lamp.prototype.display = function(drawn, lit) {
 	
 }
 
-function RainParticle(x, y, fall, sze, color) {
-	this.x = x;
-	this.y = y;
-	this.prevX = x;
-	this.prevY = y;
-	this.w = sze;
-	this.h = sze;
-	this.col = color;
-	this.size = sze;
-	this.dead = false;
-}
-RainParticle.prototype.drawRain = function(){
-	ctx.save();
-	ctx.translate(this.x, this.y);
-	ctx.fillStyle = "rgb(" + this.col.r + "," + this.col.g + "," + this.col.b + "," + ")";
-	ctx.fill();
-	ctx.rect(0, 0, this.sze, this.sze * 2);
-	ctx.restore();
-};
-RainParticle.prototype.updateFall = function() {
-	this.prevX = this.x;
-	this.prevY = this.y;
-
-	this.y += this.fall;
-
-	for(var i in blocks) {
-		if(collideHalf(this, blocks[i])) {
-			this.dead = true;
-			/*this.gravity = this.originalGrav / 2;
-			this.y = (this.prevY < blocks[i].prevY) ? blocks[i].y - this.h/2 - blockSize/2: blocks[i].y + blockSize/2 + this.h/2;
-			this.originalGrav /= 2;*/
-		}
-	}
-};
-
 var pauseButton = new Button(null, imgs.get("pause2"), imgs.get("pause2"), screenSize.w - 100, 100, blockSize, blockSize, function(){
 	paused = true;
 });
@@ -681,12 +846,13 @@ var playButton = new Button(null, imgs.get("play2"), imgs.get("play2"), screenSi
 });
 
 var player = new Player(undefined, undefined, "ground");
+var menuPlayer = new Player(undefined, undefined, "ground");
 
 var timer = new DeathPause();
 
 function game() {
 	//Put background here.
-
+	portalCooldown --;
 	//ctx.drawImage(imgs.get("backgroundTest"), 0, 0, blockSize * 20, blockSize * 10);
 
 	if(scene !== "game") {
@@ -694,7 +860,7 @@ function game() {
 	}
 
 	cam.x = lerp(cam.x, window.innerWidth / 2 - 20 / 2 - player.x, 0.1);
-    cam.y = lerp(cam.y, window.innerHeight / 2 - 20 / 2 - player.y, 0.1);
+    cam.y = lerp(cam.y, window.innerHeight / 2 - 20 / 2 -      player.y, 0.1);
 	
 	ctx.save();
 	ctx.translate(cam.x * 2, cam.y * 2);
@@ -703,14 +869,14 @@ function game() {
 	ctx.save();
 	ctx.translate(cam.x, cam.y);
 
-	for (var i in blocks) {
+	for (var i = 0; i < blocks.length; i++) {
 		if(1 * (dist(player.x, player.y, blocks[i].x, blocks[i].y) < renderDist)) {
 			blocks[i].display(true);
 		} else {
 			blocks[i].display(false);
 		}
 	}
-	for (var i in lamps) {
+	for (var i = 0; i < lamps.length; i++) {
 		if(1 * (dist(player.x, player.y, lamps[i].x, lamps[i].y) < renderDist)) {
 			if(1 * (dist(player.x, player.y, lamps[i].x, lamps[i].y) < lampClickDist)) {
 				lamps[i].display(true, true);
@@ -721,10 +887,10 @@ function game() {
 			lamps[i].display(false, false);
 		}
 	}
-	for (var i in portalPoints) {
+	for (var i = 0; i < portalPoints.length; i++) {
 		portalPoints[i].all();
 	}
-	for(var i in portals) {
+	for(var i = 0; i < portals.length; i++) {
 		if(dist(player.x, player.y, portals[i].x, portals[i].y) < renderDist) {
 			portals[i].backLit();
 			nearPortal = true;
@@ -754,7 +920,7 @@ function game() {
 		player.draw();
 	}
 
-	for(var i in portals) {
+	for(var i = 0; i < portals.length; i++) {
 		if(dist(player.x, player.y, portals[i].x, portals[i].y) < renderDist) {
 			portals[i].frontLit();
 		} else {
@@ -787,6 +953,10 @@ function game() {
 	}
 
 	timer.update();
+	
+	if(player.x > winDist) {
+		win = true;
+	}
 
 	xDist += speed;
 
@@ -794,6 +964,11 @@ function game() {
 		portalAmbience.play();
 	} else if (portalAmbience.playing === false){
 		portalAmbience.stop();
+	}
+
+	if(win && win2) {
+		trans.start("win");
+		win2 = false;
 	}
 }
 
@@ -803,34 +978,191 @@ levelMapIndex = {
 	'w':'wood',
 	'd':'dirt',
 	's':'spike',
+	'S':'downSpike',
 	'1':'lampB',
 	'2':'lampM',
 	'3':'lampT',
 	'c':'portal',
 	'C':'portalInvis',
 	't':'trampoline',
+	'b':'bush',
+	'e':'win',
+	'P':'menuPlayer'
 };
 
-levels = [
+/*
+levels = [//The e is used to find out where the end of the game is
 	[
-        '                                                                                                                                                                   ',
-        '                                                                                                                                                                   ',
-        '                                                                                                                               3                                   ',
-		'                                                                                                                               2                                   ',
-		'                                                                                                    3                 ddddd    1                                   ',
-		'                                                                                                    2                      dddddddd                                      c    ',
-		'                                                                                                    1                              dddddddd                    3         C    ',
-		'                                                                                           ddddddddddddddddddtdddd                         dddddddd            2         C    ',
-		'                                                                                                                                                   dddddddd    1         C    ',
-		'                                                                                                                                               3           ddddddddddddd C    ',
-		'                             3                       3                         ggggggtggg    3                                                 2                         C    ',
-		'     3                       2                       2                   gg                  2                                sss              1      ss                 C    ',
-		'     2                       1                ss     1      ss        ggggg                  1           gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg   ',
-		'p    1   gggggggggggggggggggggggggggtggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
-		'ggggggggggddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
-		'ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
-		'ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+    '                                                                                                                                                                                                         ',
+    '                                                                                                                                                                     3                                   ',
+    '                                                                                                                           3                                         2                                   ',
+	'                                                                 3                                                         2                                bbbbbbbb 1 bbbbbbb                           ',
+	'                                                                 2                                                 bbbbbbb 1 bbbbbbbb                       wwwwwwwwwwwwwwwwww                           ',
+	'                                                                 1                                                 wwwwwwwwwwwwwwwwww                                                                  cC',
+	'                  3                                      bb  gggggggg                       3                                                                                                           C',
+	'                  2                                     gggggddddddddgggg  bb               2                                                                                                           C',
+	'                  1bbbbbbbb   ss   bbbbbbb  bbbbbbbbbgggdddddddddddddddddggggg      bbbbb   1             bb       ss    bb    ss                   bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb   ss    bbbbbbbbbbbbbC',
+	'                gggggggggggggggggggggggggggggggggggggdddddddddddddddddddddddddgggggggggggggggggggggggtggggggggggggggggggggggggggggggggggggggtgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+	'             gggddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+	'          gggdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+	'p       ggddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+	'gggggtggggddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+	'ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+	'ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+	'ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
 	],
+];
+*/
+
+var levels = [[
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"                                                                                                                                                                                                                                                                                                             gggg",
+	"                                                                                                                                                                                                                                                                                                        dddddddddgg",
+	"                                                                                                                                                                                                                                                                                                      dddddddddddddggg",
+	"                                                                                                                                                                                                                                                                                                    dd    2       dddgg",
+	"                                                                                                                                                                                                                                                                                                   dd     2         ddggg",
+	"                                                                                                                                                                                                                                                                                                  dd      2           ddg",
+	"                                                                                                                                                                                                                                                                                                ddd       2            ddd",
+	"                                                                                                                                                                                                                                                                                       dddddddddd         2             ddd",
+	"                                                                                                                                                                                                                                                                                        2       2         2             2ddgg",
+	"                                                                                                                                                                                                                                                                                        2       2         2             2 ddgg",
+	"                                                                                                                                                                                                                                                                                        2       2         2             2  ddgg",
+	"                                                                                                                                                                                                                                                                                        2       2         2             2   ddgggb",
+	"                                                                                                                                                                                                                                                                                        2       2         2             2     ddgggg",
+	"                                                                                                                                                                                                                                                                                        2       2         2             2      ddddgg",
+	"                                                                                                                                                                                                                                     2     2                                            2       2         2                     ddddggb",
+	"                                                                                                                                                                                                                                     2     2                                            2       2         2                       dddgg",
+	"                                                                                                                                                                                                                                     2     2                                            2       2         2                         ddddd",
+	"                                                                                                                                                                                                                                     2     2                                            2       2         2",
+	"                                                                                                                                                                                                                                     2     2                                            2       2         2                               C",
+	"                                                                                                                                                                                                                                     2     2                                            2       2         2                               c",
+	"                                                                                                                                                                                                                                     2     2                                            2       2         2                               C             3                                 wwwwwwwwwwww",
+	"                                                                                                                                                                                                                                     2     2                                            2       2         2                               C             2                                  ddddddddddwww",
+	"                                                                                                                                                                                                                                     2     2                                            2       2         2                               C     b   b   1        gggtgtgt                   dddddddddddwww",
+	"                                                                     2   2      2         2     2                                                                                                                                    2     2                                            2       2     bb  1   b                           C  gggggggggggggggggggggggdgggg                     dddddddddddwww",
+	"                                                                     2   2      2         2     2                                                                                                                                    2     2                                            2       2    wwwwwwwwwww                         bggggggggggggddddddddggggddddg                          ddddddddddwww",
+	"                                                                     2   2      2         2     2                                                                                                                                    2     2                                            2       2    w         w                         gddggggdddddddddddddddddddddg                                    dddwww",
+	"                                                                     2   2      2         2     2                                                                                                                                    2     2                                            2       2                                       gddddddddddddddd       ddddd                                       ddddwww",
+	"                                                                     2   2      2         2     2                                                                                                                                    2     2                                            1  b  b 1                                     bdddddddddd                                                            ddddwwwww",
+	"                                                                     2   2      2         2     2                                                                                                                                    2     2                                           wwwwwwwwwww                                    ddddddd                                                                   ddddd",
+	"                                                                     2   2      2         2     2                                                                                                                                    2     2                                                     w                  w                bdddd                                                                                       3",
+	"                                                                     2   2      2         2     2                                                                                                                                    2     2                                                                        wwwwwwwwwwwwwwwddddd                                                                               sb        2       www",
+	"                                                                     2   2      2         2     2                                                                                                                                    2     2                                                                         2           ddddd                                                                                gggg sb  s 1 ss    dwww",
+	"                                                                     2   2      2         2     2                                                                                                                                    2     2                                            C                            2          ddgdd                                                                                gdgdggggggggggggg    ddww                                                     3",
+	"                                                                     2   2      2         2     2                                                                                                                 3                  2     2                                            c                            2        bdddd                                                                                   ddddddggggddddd      ddww                                                    2",
+	"                                                                     2   2      2         2     2                                                                                                                 2                ss2sssss2ss                                          C                            2        gddd                                                                                       ddddddddd         dddww                                                   1    ss",
+	"                                                                     2   2      2         2     2                                                                                                                 1  b             wwwwwwwwwww                                          C                       bb b 2     bggdd                                                                                                            dddwb                                                wwwwwwwwwww",
+	"                                                                     2   2      2         2     2                                                                                3                           gggggggggggg          w 2     2 w                       3          b b     C                     wwwwwwwwwwwwgggdd                                                                                                              dddgg                                                2       2",
+	"                                                                     2   2      2         2     2                                                                                2                        ggggggggdgddggggg          2     2                         2         gggggggggC                     w 2    2   ggdd                                                                                                                ddddgg                                        gg     2       2",
+	"                                                                     2   2      2         2     2                                              wwwwwww    wwwwwww    wwwwwww     1  b   bb              gggdddddddddddddddggg        2     2                      bb 1 ggggggggddddgggggg                       2    2 ddddd                                                                                                                  ddddgg                              b         d     2       2     bb   b e",
+	"                                                                     2   2     www        2     2                                               2   2      2   2      2   1    ggggggggggggggggttd     dddddd       ddddddddg        2     2                b  ggggggggggggdddddddddgddgg                       2    1ddddd                                                                                                                     dddww                            ggg              2       2   gggggggggg",
+	"                                                                     2   2                2    s2           g              3            wwwww   2   1  s s 1b  1   ss 1   ggggggdggggdddddddddddddd                       dg         2     2     ggggggggggggggggggggggddddd     dddddddg                       2  ddddd                                                                                                                         dddww                   b  ss    dd           ss 2     s 2    dddgggdd",
+	"                                                             3       wwwww               wwwwwwwww          w              2    b     b 1   1   1  bggggggggggggggggggggggggddddddddddd    dddddd                                  wwwwwwwwwww     dddgggggggggggdddddddddd          ddddgg                     1 ddddd                                                                                                                           dddww                 gggggg               wwwwwwwwwwwwww      ddddd",
+	"                                                             2                                              w            bb1 ggggggggggggggggggggggggggggdggggggggdddddddddddddd                                                                    dddddddddddddddddddd               dddgg                    dddddd                                                                                                                              ddgg                 ddgg                     2       2",
+	"                                  3                          1 b                                           gg bb  ggggggggggggggggggggggggggddddggggggdddddddddddddddd   ddd                                                                          ddddd                             dddgg                  dddd                                                                                                                                  ddgw                  dd                     2       2",
+	"                                  2                     gggtggggggg                              ss s  tttggggggggggggggggggggggggddggddddddddddddddddddddddddddddd                                                      wwwwwwt                                                         dddg                 dddd                                                                                                                                   dddww                                        2       2",
+	"                                  1       ssbggggggggggggggggggddgd                             ggggggggggggddggdggggddddgdddddddddddddd           dddddddddddddddd                                                    www   2                                                            ddgb           bggdddd                                                                                                                                      dddwwwwt                                    2       2",
+	"                        b b   b ggggggggggggggggdgdddggggdggddddddddd s     s     ss s         ddgggdgggddddddddddddddddddddddddd                         dddddd                                             wwwwwwwwwww     2                                                             ddg          bggddd                                                                                                                                         ddddddd                                    2       2",
+	"                     ggggggggggggggggdggdgggggdgddddddddddddddddddddddddssdddd    dddddddd ssdddddddddddddddddddddddd                                                                              wwwwwwwwwww   2           2                                                             ddgb        gggdddd                                                                                                                                          ddddd                                     2       2",
+	"   p      bb  gwwwwgggdgggggggdggddddddddddgdddddddddddddddddd     ddddddddddddddddddddddddddddddddddddd                                                                                              2          2           2                                                              dggb      dgddd                                                                                                                                                                                       2       2",
+	"   ggggggggggggggggggddddgggdddddddddddddddddddddd    dd                  ddddddddddddddddd                                                                                                           2          2           2                                                               dgg    dddddd                                                                                                                                                                                        2       2",
+	" gggdgggdggdgggddddddddddddddddddddddddddddddd                                                                                                                                                        2          2           2                                                                dg  ddddd                                                                                                                                                                                           2       2",
+	"gggddddddgddddddddddddddddddddddddddddd                                                                                                                                                               2          2           2                                                                dddddd                                                                                                                                                                                              2       2",
+	"ggddddddddddddddddddddddddddddddddddd                                                                                                                                                                 2          2           2                                                                 ddddd                                                                                                                                                                                              2       2",
+	" ddddddddddddddddddddddddddddddddd                                                                                                                                                                    2          2           2                                                                                                                                                                                                                                                                    2       2",
+	" ddddddddd     dddddddddddd                                                                                                                                                                           2          2           2                                                                                                                                                                                                                                                                    2       2",
+	" dddddd           ddddddd                                                                                                                                                                             2          2           2                                                                                                                                                                                                                                                                    2       2",
+	"  dddd             ddd                                                                                                                                                                                2          2           2                                                                                                                                                                                                                                                                    2       2",
+	"                                                                                                                                                                                                      2          2           2                                                                                                                                                                                                                                                                    2       2",
+	"                                                                                                                                                                                                      2          2           2                                                                                                                                                                                                                                                                    2       2",
+	"                                                                                                                                                                                                      2          2           2                                                                                                                                                                                                                                                                    2       2",
+	"                                                                                                                                                                                                      2          2           2                                                                                                                                                                                                                                                                    2       2",
+	"                                                                                                                                                                                                      2          2           2                                                                                                                                                                                                                                                                    2       2",
+]]; 
+
+var levelMapMenu = [
+	'',
+	'',
+	'',
+	'',
+	'',
+	'',
+	'',
+	'',
+	'P',
+	'gggggggggggggggggggggggggggggtgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+	'',
+	'',
+	'',
+	'',
+	'',
+	'',
+	'',
 ];
 
 function update() {
@@ -875,6 +1207,15 @@ function update() {
 				case "dirt":
 					blocks.push(new Block(j * blockSize, i * blockSize, levelMap[i][j], imgs.get(randomDirt())));
 				break;
+				case "downSpike":
+					blocks.push(new Block(j * blockSize, i * blockSize, levelMap[i][j], imgs.get("spikeDown")));
+				break;
+				case "bush":
+					blocks.push(new Block(j * blockSize, i * blockSize, levelMap[i][j], imgs.get("bush")));
+				break;
+				case "win":
+					winDist = j * blockSize;
+				break;
 			}
 		}
 		if(i ===  levelMap.length + 1) {
@@ -891,5 +1232,73 @@ function update() {
 	}
     firstTime = false;
 	dead = false;
+	player.mode = "ground";
 }
+
+function updateMenu() {
+	menuBlocks = [];
+
+	for(var i = 0; i < levelMapMenu.length; i++) {
+		for(var j = 0; j < levelMapMenu[i].length; j++) {
+			switch(levelMapIndex[levelMapMenu[i][j]]) {
+				case "player":
+					player.x = 15/2 + j * blockSize;
+					player.y = 15/2 + i * blockSize;
+				break;
+				case "normal":
+					menuBlocks.push(new Block(j * blockSize, i * blockSize, levelMapMenu[i][j], imgs.get(randomBlock())));
+				break;
+				case "wood":
+					menuBlocks.push(new Block(j * blockSize, i * blockSize, levelMapMenu[i][j], imgs.get(randomWood())));
+				break;
+				case "spike":
+					menuBlocks.push(new Block(j * blockSize, i * blockSize, levelMapMenu[i][j], imgs.get("Spike")));
+				break;
+				case "lampB":
+					lamps.push(new Lamp(j * blockSize, i * blockSize, levelMapMenu[i][j], null));
+				break;
+				case "lampM":
+					lamps.push(new Lamp(j * blockSize, i * blockSize, levelMapMenu[i][j], null));
+				break;
+				case "lampT":
+					lamps.push(new Lamp(j * blockSize, i * blockSize, levelMapMenu[i][j], null));
+				break;
+				case "portal":
+					portals.push(new PortalChange(j * blockSize, i * blockSize));
+				break;
+				case "portalInvis":
+					portalPoints.push(new PortalChangeDark(j * blockSize, i * blockSize));
+				break;
+				case "trampoline":
+					menuBlocks.push(new Block(j * blockSize, i * blockSize, levelMapMenu[i][j], imgs.get("trampoline")));
+				break;
+				case "dirt":
+					menuBlocks.push(new Block(j * blockSize, i * blockSize, levelMapMenu[i][j], imgs.get(randomDirt())));
+				break;
+				case "downSpike":
+					menuBlocks.push(new Block(j * blockSize, i * blockSize, levelMapMenu[i][j], imgs.get("spikeDown")));
+				break;
+				case "bush":
+					menuBlocks.push(new Block(j * blockSize, i * blockSize, levelMapMenu[i][j], imgs.get("bush")));
+				break;
+				case "win":
+					winDist = j * blockSize;
+				break;
+				case "menuPlayer":
+					menuPlayer.x = 15/2 + j * blockSize;
+					menuPlayer.y = 15/2 + i * blockSize;
+					playerReset = 15/2 + i * blockSize;
+				break;
+			}
+		}
+		if(i ===  levelMapMenu.length + 1) {
+			menuBlocks[i].y = seaLevel;
+		}
+	}
+
+	menuPlayer.gravity = 0;
+	menuPlayer.angle = 0;
+}
+
 config();
+configMenu();

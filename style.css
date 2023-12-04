@@ -16,6 +16,35 @@ canvas {
 	border: black 1px solid;
 }
 
+#links {
+	display: none;
+	margin-top: -10px;
+	padding: auto;
+
+	text-align: center;
+	
+	color: white;
+	font-family: 'Raleway', sans-serif;
+	font-size: 20px;
+}
+
+#links h1 {
+	font-size: 50px;
+
+	letter-spacing: .2rem;
+}
+#links h2 {
+	font-size: 35px;
+}
+
+#links a {
+	color: indianred;
+}
+
+#returnButton {
+	margin-bottom: 40px;
+}
+ 
 #loadingBanner {
 	display: block;
 	margin: auto;

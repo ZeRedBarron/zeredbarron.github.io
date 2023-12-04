@@ -8,6 +8,7 @@ function runGame() {
 	ctx.fillStyle = "rgb(" + brightness + ", " + brightness + ", " + brightness + ")";
 	ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);//redraw a white background for resetting the screen
 
+	/*
 	ctx.fillStyle = "rgb(255, 255, 255)";
 	ctx.fillText("Speed: " + speed, 20, 20);
 	ctx.fillText("Sea Level: " + seaLevel, 20, 40);
@@ -19,7 +20,11 @@ function runGame() {
 	ctx.fillText("Splashes Length: " + splashes.length, 20, 160);
 	ctx.fillText("Timer: " + timer.timer, 20, 180);
 	ctx.fillText("Timer Length: " + timer.time, 20, 200);
-
+	ctx.fillText("Player X: " + player.x, 20, 220);
+	ctx.fillText("Win Location: " + winDist, 20, 240);
+	ctx.fillText("Won: " + win, 20, 260);
+	ctx.fillText("Menu Speed: " + menuSpeed, 20, 280);
+ 	*///Debugging Text
 	switch(scene) {
 		case "game":
 			game();
@@ -30,10 +35,16 @@ function runGame() {
 		case "menu":
 			menu();
 		break;
+		case "how":
+			how();
+		break;
+		case "win":
+			end();
+		break;
 	}
 	
-	//ctx.drawImage(imgs.get("blank"), 30, 30, 200, 200);
-
+	trans.run();
+	
 	frameClick++;
 
 	brightness -= 10;
@@ -53,7 +64,11 @@ imgs.waitToRun().then(function(){
 	});
 });
 */
-Promise.all([soundComplete, imageComplete]).then(function(){
+clickComplete.then(function(){
+	document.getElementById("start").innerHTML = "Sound Authorized";
+});
+
+Promise.all([soundComplete, imageComplete, clickComplete]).then(function(){
 	Howler.volume(1);
 	document.getElementById("load").style.display = "none";
 	inter = window.setInterval(runGame, 1000 / 60);

@@ -7,3 +7,9 @@ Credits to https://jsfiddle.net/DerekL/2F2gu/ for loading function
 rain hitting invis blocks better.
 
 Credits to https://www.sliderrevolution.com/resources/css-loaders/ for more loading animations
+
+For after presentation:
+
+Exclematin points
+
+particle spike bush collistions

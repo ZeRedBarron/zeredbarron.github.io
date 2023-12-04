@@ -6,11 +6,15 @@ var canvas = document.getElementById("canvas");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-var keys = [], clicked = false, mouseX, mouseY;//Mouse and keyboard controls
+var startButton = document.getElementById("start");
+
+var keys = [], clicked = false, mouseX, mouseY, scrollY;//Mouse and keyboard controls
 
 var inter, runGame, frameClick = 0;
 
-var scene = "credits";
+var scene = "menu";
+
+var playerReset;
 
 var center = {
 	x: window.innerWidth/2,
@@ -26,13 +30,16 @@ var ambienceRunning = false;
 
 var imageLoaded = new Event("imgLoad");
 var soundLoaded  = new Event("soundLoad");
-var fullLoaded = new Event("fullLoad");
+var soundAthent = new Event("fullLoad");
 
 var soundComplete = new Promise(function(resolve) {
 	window.addEventListener("soundLoad", resolve);
 })
 var imageComplete = new Promise(function(resolve) {
 	window.addEventListener("imgLoad", resolve);
+})
+var clickComplete = new Promise(function(resolve) {
+	startButton.addEventListener("click", resolve);
 })
 
 bdy.addEventListener("keydown", function(e) {
@@ -51,6 +58,9 @@ bdy.addEventListener("mouseup", function() {
 bdy.addEventListener("mousemove", function(e) {
 	mouseX = e.pageX;
 	mouseY = e.pageY;
+});
+bdy.addEventListener("scroll", function(e){
+	scrollY = e.scrollY;
 });
     
 var ctx = window.document.getElementById("canvas").getContext("2d");
@@ -120,35 +130,10 @@ function normalize(value, min, max) {
 	return normalized;
 }//https://stats.stackexchange.com/questions/70801/how-to-normalize-data-to-0-1-range
 
-function waitForEvents(eventTarget, eventNames) {
-
-	eventTarget = eventTarget || document;
-	eventNames = (!Array.isArray(eventNames)) ? String(eventNames).split(',') : eventNames;
-
-	// clean event names
-	eventNames = eventNames.map(function(item) {
-		return String(item).trim();
-	})
-	.filter(function(item) {
-		return item !== '';
-	});
-
-	var items = [];
-
-	// create a promise to wait for each event
-	var listeners = eventNames.map(function(eventName) {
-		return new Promise(function(resolve) {
-			eventTarget.addEventListener(eventName, function(e) {
-				items.push(e);
-				resolve();
-			}, false);
-		});
-	});
-
-	// resolve once all events have fired
-	return Promise.all(listeners).then(function() {
-		return Promise.resolve(items);
-	});
+function returnToGame(){
+	document.getElementById("links").style.display = "none";
+	document.getElementById("game").style.display = "block";
+	bdy.style.overflow = "hidden";
 }
 
 function Button(txt, img1, img2, x, y, w, h, action) {
@@ -178,4 +163,41 @@ Button.prototype.all = function() {
 	}
 };
 
+var Transition = function(){
+	this.on = false;
+	this.transTo = undefined;
+	this.x = 0;
+	this.xC = 40;
+};
+Transition.prototype.start = function(where) {
+	this.on = true;
+	this.transTo = where;
+	this.x = 0;
+};
+Transition.prototype.display = function() {
+	ctx.save();
+	ctx.translate(-screenSize.w, 0);
+	ctx.fillStyle = "rgb(0, 0, 0)";
+	ctx.fillRect(this.x, 0, screenSize.w, screenSize.h);
+	ctx.restore();
+};
+Transition.prototype.update = function() {
+	if(this.on){// if the tranition is on: 
+		this.x += this.xC;
 
+		if(this.x > screenSize.w){
+			scene = this.transTo;
+		}else if(this.x > screenSize.w * 2){
+			this.on = false;
+			this.xC = 40;
+		}
+
+	}
+};
+Transition.prototype.run = function() {
+    this.update(); 
+	if(this.on){ 
+		this.display();    
+	} 
+};
+var trans = new Transition();

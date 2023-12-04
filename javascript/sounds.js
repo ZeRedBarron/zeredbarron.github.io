@@ -8,22 +8,19 @@ function buildSound(source, loop, vol, onload) {
 	})
 }
 
-function musicbox(type, tracksG, tracksM, curTrack = tracksM[0]) {
-	curTrack.on("end", function(){
-		var newTrack = tracksG[0];
-		newTrack.play();
-		curTrack = newTrack;
-	});
-}
-
 function Music(type) {
 	this.curType = type;
 	this.gameTracks = [
-		sounds.get("BasicAmbience"),
-		sounds.get("BasicAmbience2"),
+		sounds.get("GameAmbience1"),
+		sounds.get("GameAmbience2"),
+		sounds.get("GameAmbience3"),
+	];
+	this.otherTracks = [
+		sounds.get("MenuAmbience1"),
+		sounds.get("MenuAmbience2"),
 	];
 	this.numGameTracks = this.gameTracks.length;
-	this.curTrack = this.gameTracks[0];
+	this.curTrack = this.otherTracks[0];
 	this.config();
 }
 Music.prototype.config = function() {
@@ -38,7 +35,12 @@ Music.prototype.run = function() {
 	this.curTrack.once("end", function(){
 		mainObject.curTrack.stop();
 		//mainObject.seek(0)
-		var newTrack = mainObject.gameTracks[randomInt(0, 1)];
+		if(scene === "game" || scene === "win") {
+			var newTrack = mainObject.gameTracks[randomInt(0, 2)];
+		} else {
+			var newTrack = mainObject.otherTracks[randomInt(0, 1)];
+		}
+		
 		newTrack.play();
 		mainObject.curTrack = newTrack;
 		
@@ -141,7 +143,7 @@ var sounds = new SoundCollection([
         name: "deathsound",
         src: "audio/sound effects/death sound 2.mp3",
         loop: false,
-        vol: 1,
+        vol: 0.3,
     },
     {
         name: "Portal",
@@ -165,22 +167,39 @@ var sounds = new SoundCollection([
 		name: "deathHit",
 		src: "audio/sound effects/hitSound.mp3",
 		loop: false,
-		vol: 1,
+		vol: 0.3,
 	},
 	{
-		name: "BasicAmbience",
+		name: "GameAmbience1",
 		src: "audio/music/Basic Ambience.wav",
 		loop: false,
 		vol: 0.7
 	},
 	{
-		name: "BasicAmbience2",
+		name: "MenuAmbience2",
 		src: "audio/music/Basic Ambience Melody.wav",
 		loop: false,
 		vol: 0.7
 	},
+	{
+		name: "MenuAmbience1",
+		src: "audio/music/Menu Ambience.wav",
+		loop: false,
+		vol: 0.7
+	},
+	{
+		name: "GameAmbience2",
+		src: "audio/music/Ambience 3 (string).wav",
+		loop: false,
+		vol: 0.7
+	},
+	{
+		name: "GameAmbience3",
+		src: "audio/music/Ambience 4 (string 2).wav",
+		loop: false,
+		vol: 0.7
+	},
 ]);
-
 
 var lampSounds = [
 	sounds.get("Click1"),

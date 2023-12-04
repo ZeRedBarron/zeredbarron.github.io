@@ -1,17 +1,26 @@
 
 var creditScroll = 0;
+var curScrollPos = 0;
 
 var creditsBar = [];
+var howBar = [];
 
 var text = [
 	[
 		"Programming:",
 		"Paul Barron",
-		"Tomas Garcia"
 	],
 	[
 		"Graphics:",
 		"Eduardo Jauregui",
+	],
+	[
+		"Music:",
+		"Paul Barron",
+	],
+	[
+		"Organization:",
+		"Tomas Garcia",
 	],
 	[
 		"With Help from:",
@@ -33,8 +42,72 @@ var text = [
 	],
 ];
 
+var howText = [
+	[
+		"Controls:",
+		"Space Bar or Up Arrow to",
+		"jump"
+	],
+	[
+		"Objective:",
+		"Avoid obstacles and",
+		"reach the end"
+	],
+	[
+		"Warning:",
+		"Watch for the twist"
+	],
+];
+
 var creditsButtons = [
-	new Button(null, imgs.get("backOff"), imgs.get("backOn"), 200, screenSize.h - 175, blockSize*3, blockSize*2),
+	new Button(null, imgs.get("backOff"), imgs.get("backOn"), 300, screenSize.h - 125, blockSize*3, blockSize*2, function() {
+		trans.start("menu");
+	}),
+	new Button(null, imgs.get("linksOff"), imgs.get("linksOn"), screenSize.w - 300, screenSize.h - 125, blockSize*3, blockSize*2, function() {
+		document.getElementById("game").style.display = "none";
+		document.getElementById("links").style.display = "block";
+		bdy.style.overflow = "auto";
+	}),
+	new Button(null, imgs.get("upArrowOff"), imgs.get("upArrowOn"), center.x - 200, screenSize.h - 125, blockSize*3, blockSize*2, function() {
+		creditScroll += 150;
+	}),
+	new Button(null, imgs.get("downArrowOff"), imgs.get("downArrowOn"), center.x + 200, screenSize.h - 125, blockSize*3, blockSize*2, function() {
+		creditScroll -= 150;
+	}),
+];
+
+var menuButtons = [
+	new Button(null, imgs.get("mainButtonPlayOff"), imgs.get("mainPlayButtonOn"), center.x, center.y + screenSize.h/16, blockSize*4, blockSize*3, function() {
+		trans.start("game");
+	}),
+	new Button(null, imgs.get("levelSelectOff"), imgs.get("levelSelectOn"), center.x - 300, center.y + screenSize.h/16, blockSize*3, blockSize*2, function() {
+		trans.start("credits");
+		creditScroll = 0;
+	}),
+	new Button(null, imgs.get("howOff"), imgs.get("howOn"), center.x + 300, center.y + screenSize.h/16, blockSize*3, blockSize*2, function() {
+		trans.start("how");
+	}),
+];
+
+var howButtons = [
+	new Button(null, imgs.get("backOff"), imgs.get("backOn"), 300, screenSize.h - 125, blockSize*3, blockSize*2, function() {
+		trans.start("menu");
+	}),
+];
+var winButtons = [
+	new Button(null, imgs.get("backOff"), imgs.get("backOn"), 300, screenSize.h - 125, blockSize*3, blockSize*2, function() {
+		trans.start("menu");
+
+		dead = false;
+		win = false;
+		win2 = !false;
+
+		firstTime = true;
+		paused = false;
+		deathPaused = false;
+
+		update();
+	}),
 ]
 
 function randomRedWood() {
@@ -53,6 +126,29 @@ function randomRedWood() {
 }
 for(var i = 0; i < 50; i++) {
 	creditsBar.push(imgs.get(randomRedWood()));
+	howBar.push(imgs.get(randomRedWood()));
+}
+
+function howBanner(masterLoc) {
+	var x = masterLoc.x;
+	var y = masterLoc.y;
+
+	for(var i = 0, j = 0, m = 0; i < howText.length; i++, j += blockSize, m++) {
+		for(var k = 0, l = 0; k < howText[i].length; k++, j += blockSize, m++) {
+			if(k > 0) {
+				ctx.drawImageC(howBar[m], x, y + j, blockSize, blockSize);
+				m++;
+				ctx.drawImageC(howBar[m], x + blockSize, y + j, blockSize, blockSize);
+				pixelFont(howText[i][k], x + 2*blockSize, y + j, 25);
+			} else {
+				ctx.drawImageC(howBar[m], x, y + j, blockSize, blockSize);
+				pixelFont(howText[i][k], x + blockSize, y + j, 25);
+			}
+
+		}
+		ctx.drawImageC(imgs.get("RedWoodTexture1"), x, y + j, blockSize, blockSize);
+	}
+
 }
 
 function creditBanners(masterLoc) {
@@ -79,8 +175,8 @@ function creditBanners(masterLoc) {
 
 function pixelFont(txt, x, y, sze){
 	txt = txt.split("\n");
-	for(var i in txt){
-		for(var j in txt[i]){
+	for(var i = 0; i < txt.length; i++){
+		for(var j = 0; j < txt[i].length; j++){
 			ctx.save();
 			ctx.translate(x + j * sze * 1.6, y + i * sze * 1.6);
 			ctx.drawImageC(imgs.get(txt[i][j]), 0, 0, sze, sze);
@@ -89,11 +185,26 @@ function pixelFont(txt, x, y, sze){
 	}
 }
 
+function titleFont(txt, x, y, sze){
+	txt = txt.split("\n");
+	for(var i = 0; i < txt.length; i++){
+		for(var j = 0; j < txt[i].length; j++){
+			ctx.save();
+			ctx.translate(x + j * sze * 1.4, y + i * sze * 1.4);
+			ctx.drawImageC(imgs.get(txt[i][j] + "title"), 0, 0, sze, sze);
+			ctx.restore();
+		}
+	}
+}
+
 function credits() {
-
-
+	curScrollPos = lerp(curScrollPos, creditScroll, 0.2);
+	
+	ctx.save();
+	ctx.translate(0, curScrollPos)
 	creditBanners({x:center.x - 465, y: 250});
-
+	ctx.restore();
+	
 	ctx.fillStyle = "rgb(0, 0, 0)";
 	ctx.strokeStyle = "rgb(255, 0, 0)";
 	ctx.fillRect(0, 0, screenSize.w, 200);
@@ -102,29 +213,59 @@ function credits() {
 	ctx.fillRect(0, 0, 200, screenSize.h);
 	ctx.fillRect(screenSize.w - 200, 0, 200, screenSize.w);
 	
-	pixelFont("CREDITS", center.x - (center.x * 1/3.6 - 40)/*255*/, creditScroll + 100, 50);
+	pixelFont("CREDITS", center.x - (center.x * 1/3.6 - 40)/*255*/, 100, 50);
 
-	pixelFont("Made by The Dash Devs", center.x - 355, creditScroll + 175, 25);
+	pixelFont("Made by The Dash Devs", center.x - 355, 175, 25);
 
-	for(var i in creditsButtons) {
+	for(var i = 0; i < creditsButtons.length; i++) {
 		creditsButtons[i].all();
 	}
-	
-	/*pixelFont("Programming:\n  Paul Barron\n  Tomas Garcia", center.x - 465, creditScroll + 260, 25);
-
-	pixelFont("Graphics:\n  Eduardo Jauregui", center.x - 465, creditScroll + 400, 25);
-
-	pixelFont("With help from:\n  Derek Lueng\n  JP Roche\n  Matthew Anderson", center.x - 465, creditScroll + 520, 25);
-
-	pixelFont("Built using Replit\nSound managed with Howler JS\nSounds from Pixabay\nSound edited on Audacity\nPixal Art built in Pixalorama\nMusic composed in Finale v27\nMusic performed by Noteperformer 4\n", center.x - 465, creditScroll + 700, 25);
-
-	for(var i = 100, j = 0; i < 700; i += blockSize, j++) {
-		ctx.drawImageC(creditsBar[j], center.x - 565, 100+ i, blockSize, blockSize);
-	}
-	*/
 }
 
 function menu() {
-    
+	
+	titleFont("HORiZON HOPPER", 140, 350, blockSize*2);
+
+	ctx.save();
+	ctx.translate (-755, -69);
+	
+	for(var i = playerParticles.length - 1; i > 0; i--) {
+		playerParticles[i].playerDraw();
+		if(playerParticles[i].mode === "fall") {
+			playerParticles[i].updateFall();
+		} else if (playerParticles[i].mode === "fly") {
+			playerParticles[i].updateFly();
+		}
+		if(playerParticles[i].dead) {
+			playerParticles.splice(i, 1);
+			continue;
+		}
+	}
+
+	menuPlayer.draw();
+	menuPlayer.menuUpdate();
+
+	ctx.restore();
+
+	if(menuPlayer.x > 4000) {
+		menuPlayer.x = playerReset;
+	}
+	
+    for(var i = 0; i < menuButtons.length; i++){
+		menuButtons[i].all();
+	}
 }
 
+function how() {	
+	pixelFont("How To:", center.x - (center.x * 1/3.6 - 40)/*255*/, 100, 50);
+
+	howBanner({x:center.x - 465, y: 250})
+	
+	howButtons[0].all();
+}
+
+function end() {
+	pixelFont("YOU WIN", center.x - (center.x * 1/3.6 - 40)/*255*/, 100, 50);
+
+	winButtons[0].all();
+}
