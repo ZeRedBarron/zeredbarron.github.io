@@ -55,5 +55,9 @@ We used discord, which worked fine.  All I really needed was to tell Eduardo wha
 Next time, I would not use Replit.  Serious lag issues.  VS and github would be way less of a hassle.
 Put all of the js in one file. (if you remember, almost 3000 lines of js)  It's so satisfying to see that number go up and think "i created this."
 
-The same would be asking my friends for help, and using Cnrl C/V.  JK  Using my base setups, but perhaps doing more local variables.
+The same would be asking my friends for help, and using Cnrl C/V.  JK  
 
+Using my base setups, but perhaps doing more local variables.  
+Using trello.  Great idea
+
+12. zeredbarron.github.io
