@@ -22,8 +22,6 @@ ImageCollection.prototype.config = function(list){
 				loaded = true;
 				window.dispatchEvent(imageLoaded);
             }
-			//console.log(list.length + " " + total)
-			
         });
 		img.src = list[i].url;
 	}
@@ -46,10 +44,6 @@ ImageCollection.prototype.waitToRun = function(){
 }
 
 var imgs = new ImageCollection([
-	{
-		name: "MoonBackground",
-		url: "Moon Background 2.png"
-	},
 	{
 		name: "BlockTexture",
 		url: "graphics/blocks/block_01.png"
@@ -138,18 +132,6 @@ var imgs = new ImageCollection([
 		name: "Spike",
 		url: "graphics/blocks/spike_01.png"
 	},
-    {
-        name: "DarkOakTrunk01",
-        url: "graphics/blocks/DarkOakTrunk01 (1).png"
-    },
-    {
-        name: "DarkOakTrunk02",
-        url: "graphics/blocks/DarkOakTrunk02 (1).png"
-    },
-    {
-        name: "DarkOakTrunk03",
-        url: "graphics/blocks/DarkOakTrunk03.png"
-    },
 	{
 		name: "LeafTexture",
 		url: "blocks/leaves_01.png"
@@ -405,6 +387,22 @@ var imgs = new ImageCollection([
 	{
 		name: "pause2",
 		url: "graphics/icons/pause_02.png",
+	},
+	{
+		name: "playOn",
+		url: "graphics/icons/playbutton_on.png",
+	},
+	{
+		name: "pauseOn",
+		url: "graphics/icons/pausebutton_on.png",
+	},
+	{
+		name: "playOff",
+		url: "graphics/icons/playbutton_off.png",
+	},
+	{
+		name: "pauseOff",
+		url: "graphics/icons/pausebutton_off.png",
 	},
 	{
 		name: "PortalDark",
@@ -669,6 +667,38 @@ var imgs = new ImageCollection([
 	{
 		name: "ititle",
 		url: "graphics/font/main font/title_trampoline_i.png"
-	}
-]);
+	},
+	{
+		name: "flagUp",
+		url: "graphics/blocks/checkpoint_raised_renewed.png"
+	},
+	{
+		name: "flagDown",
+		url: "graphics/blocks/checkpoint_lowered_renewed.png"
+	},
+	{
+		name: "Arrow0",
+		url: "graphics/icons/whitespeedarrow1.png"
+	},
+	{
+		name: "Arrow1",
+		url: "graphics/icons/whitespeedarrow2.png"
+	},
+	{
+		name: "Arrow2",
+		url: "graphics/icons/whitespeedarrow3.png"
+	},
+	{
+		name: "Arrow3",
+		url: "graphics/icons/whitespeedarrow4.png"
+	},
+	{
+		name: "Arrow4",
+		url: "graphics/icons/whitespeedarrow5.png"
+	},
+	{
+		name: "!",
+		url: "graphics/font/exclamationpoint.png".
+	},
+]);//All images
 

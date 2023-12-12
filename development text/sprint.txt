@@ -59,3 +59,21 @@ Tomas: Design the level (2 hours)
 Eduardo: Main Play Button, Title Font(2 hours)
 
 Paul: Final Game Track, seam tracks together, make main menu, make credits links menu, start button, implement auras, make protal paritcles (7 hours)
+
+12/4 to 12/11:
+
+Paul: Final Game submission, Game design document, Back button on game screen, respawn points, fix double jump problems
+
+Eduardo: Pause and play in menu button style, exclamation points, Arrow
+
+Tomas: nothing for this week.
+
+All: Game Postmortem, Self Eval, Group Eval individual, Group eval for group, course evaluation, instuructor eval.
+
+12/11 and Onward:
+
+Paul: Group presentation
+
+Eduardo: 
+
+Tomas: 

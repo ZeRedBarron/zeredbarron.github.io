@@ -1,6 +1,6 @@
 var soundLoad = false;
 
-function buildSound(source, loop, vol, onload) {
+function buildSound(source, loop, vol) {
 	return new Howl({
 		src: [source],
 		loop: (typeof loop === "boolean") ? loop : false,
@@ -14,10 +14,12 @@ function Music(type) {
 		sounds.get("GameAmbience1"),
 		sounds.get("GameAmbience2"),
 		sounds.get("GameAmbience3"),
+		sounds.get("GameAmbience4"),
 	];
 	this.otherTracks = [
 		sounds.get("MenuAmbience1"),
 		sounds.get("MenuAmbience2"),
+		sounds.get("MenuAmbience3"),
 	];
 	this.numGameTracks = this.gameTracks.length;
 	this.curTrack = this.otherTracks[0];
@@ -30,13 +32,13 @@ Music.prototype.config = function() {
 Music.prototype.run = function() {
 	var mainObject = this;
 	
-	//console.log(typeof this.gameTracks)
-	
 	this.curTrack.once("end", function(){
 		mainObject.curTrack.stop();
 		//mainObject.seek(0)
-		if(scene === "game" || scene === "win") {
-			var newTrack = mainObject.gameTracks[randomInt(0, 2)];
+		if(scene === "game") {
+			var newTrack = mainObject.gameTracks[randomInt(0, 3)];
+		} else if (scene === "win") {
+			var newTrack = mainObject.otherTracks[2];
 		} else {
 			var newTrack = mainObject.otherTracks[randomInt(0, 1)];
 		}
@@ -199,6 +201,30 @@ var sounds = new SoundCollection([
 		loop: false,
 		vol: 0.7
 	},
+	{
+		name: "PortalAmbience",
+		src: "audio/sound effects/portal_ambience.mp3",
+		loop: true,
+		vol: 0.3,
+	},
+	{
+		name: "MenuAmbience3",
+		src: "audio/music/Menu Ambience 2.wav",
+		loop: false,
+		vol: 0.7,
+	},
+	{
+		name: "GameAmbience4",
+		src: "audio/music/Ambience 4 (winds).wav",
+		loop: false,
+		vol: 0.7
+	},
+	{
+		name: "lampAmbience",
+		src: "audio/sound effects/lampbuzz.mp3",
+		loop: true,
+		vol: 0.3
+	}
 ]);
 
 var lampSounds = [
@@ -210,13 +236,16 @@ var lampSounds = [
 	sounds.get("Click6"),
 ];
 
-var lampAmbience = buildSound("audio/sound effects/lampbuzz.mp3", true, 0);
-lampAmbience.play();
+var lampAmbience = sounds.get("lampAmbience")
+//lampAmbience.play();
 
 var deathSound = sounds.get("deathSound");
 
-var rainSound = buildSound("calm-rain-ambient-sound-15-min-147850.mp3", true, 0.14);
+//var rainSound = buildSound("calm-rain-ambient-sound-15-min-147850.mp3", true, 0.14);
 
+function portalAmbience() {
+	return sounds.get("PortalAmbience");
+}
 
 function randomSound() {
 	return lampSounds[randomInt(0, 5)];
@@ -236,10 +265,6 @@ function bounceSound() {
 
 function teleportSound() {
     sounds.get("Portal").play();
-}
-
-function portalAmbience() {
-    sounds.get("PortalAmbience2").play();
 }
 
 function hitWall() {

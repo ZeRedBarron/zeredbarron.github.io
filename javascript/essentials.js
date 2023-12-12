@@ -3,32 +3,37 @@
 var bdy = window.document.querySelector("body");
 var canvas = document.getElementById("canvas");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+var p1080 = {
+	w: 1920,
+	h: 963,
+}//Screen size setup
+
+canvas.width = p1080.w;
+canvas.height = p1080.h;
 
 var startButton = document.getElementById("start");
 
 var keys = [], clicked = false, mouseX, mouseY, scrollY;//Mouse and keyboard controls
 
-var inter, runGame, frameClick = 0;
+var inter, runGame, frameClick = 0;//interval variables
 
-var scene = "menu";
+var scene = "menu";//current scene
 
 var playerReset;
 
 var center = {
-	x: window.innerWidth/2,
-	y: window.innerHeight/2
+	x: p1080.w/2,
+	y: p1080.h/2
 }
 var screenSize = {
-	w: canvas.width,
-	h: canvas.height
+	w: p1080.w,
+	h: p1080.h,
 }
-var blockSize = 45;
+var blockSize = 45;//Global block size (almost) everything is bound to this
 
 var ambienceRunning = false;
 
-var imageLoaded = new Event("imgLoad");
+var imageLoaded = new Event("imgLoad");//New event listeners 
 var soundLoaded  = new Event("soundLoad");
 var soundAthent = new Event("fullLoad");
 
@@ -42,36 +47,37 @@ var clickComplete = new Promise(function(resolve) {
 	startButton.addEventListener("click", resolve);
 })
 
-bdy.addEventListener("keydown", function(e) {
+bdy.addEventListener("keydown", function(e) {//Keyboard reading
 	keys[e.keyCode] = true;
 });
 bdy.addEventListener("keyup", function(e) {
 	keys[e.keyCode] = false;
 });
 
-bdy.addEventListener("mousedown", function() {
+bdy.addEventListener("mousedown", function() {//Mouse reading
 	clicked = true;
 });
 bdy.addEventListener("mouseup", function() {
 	clicked = false;
 });
 bdy.addEventListener("mousemove", function(e) {
-	mouseX = e.pageX;
-	mouseY = e.pageY;
+	var rect = canvas.getBoundingClientRect(), scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;//thanks: https://stackoverflow.com/questions/17130395/real-mouse-position-in-canvas
+	mouseX = (e.clientX - rect.left) * scaleX;
+	mouseY = (e.clientY - rect.top) * scaleY;
 });
 bdy.addEventListener("scroll", function(e){
 	scrollY = e.scrollY;
 });
     
-var ctx = window.document.getElementById("canvas").getContext("2d");
+var ctx = window.document.getElementById("canvas").getContext("2d");//2d context
 ctx.imageSmoothingEnabled = true;
 ctx.imageSmoothingQuality = "high";
 ctx.rect = function(x, y, w, h) {
 	this.fillRect(x - w / 2, y - h / 2, w, h);
-}
+}//center rectangle function
 ctx.drawImageC = function(img, x, y, w, h) {
 	this.drawImage(img, x - w / 2, y - h / 2, w, h);
-}
+}//cneter image drawing
 
 function close(targets, num){
     var allDists = [];
@@ -105,11 +111,11 @@ function collideHalf(player, block){
 
 function dist(x1, y1, x2, y2) {
     return Math.hypot((x2 - x1), (y2 - y1));
-}
+}//Distance between two points
 
-function lerp(num1, num2, amt) {//For smooth camera motion
+function lerp(num1, num2, amt) {
 	return (num2 - num1) * amt + num1;
-}
+}//For smooth camera motion
 
 function random(min, max) {
 	var newMax = max - min;
@@ -119,11 +125,11 @@ function random(min, max) {
 function randomInt(min, max) {
 	var newMax = max - min;
 	return Math.round((Math.random() * newMax) + min);
-}
+}//Random integer
 
 function constrain(aNumber, aMin, aMax) { 
 	return aNumber > aMax ? aMax : aNumber < aMin ? aMin : aNumber; 
-}
+}//Contrainting a number between two values.  Also made by Tamney Natani
 
 function normalize(value, min, max) {
 	var normalized = (value - min) / (max - min);
@@ -134,7 +140,7 @@ function returnToGame(){
 	document.getElementById("links").style.display = "none";
 	document.getElementById("game").style.display = "block";
 	bdy.style.overflow = "hidden";
-}
+}//Reseting the CSS
 
 function Button(txt, img1, img2, x, y, w, h, action) {
 	this.txt = txt;//Self Explanitory
@@ -145,7 +151,7 @@ function Button(txt, img1, img2, x, y, w, h, action) {
 	this.img1 = img1;
 	this.img2 = img2;
 	this.action = action;//What action
-}
+}//Button object
 Button.prototype.all = function() {
 	if(mouseX > this.x - this.w / 2 && mouseX < this.x + this.w / 2 && mouseY < this.y + this.h / 2 && mouseY > this.y - this.h / 2) {
 		if(!dead) {
@@ -168,7 +174,7 @@ var Transition = function(){
 	this.transTo = undefined;
 	this.x = 0;
 	this.xC = 40;
-};
+};//Transition objects.  Made by Matthew Anderson
 Transition.prototype.start = function(where) {
 	this.on = true;
 	this.transTo = where;

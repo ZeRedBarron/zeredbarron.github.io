@@ -1,6 +1,8 @@
 # zeredbarron.github.io
-Game in dev
+Horizon Hopper.  
 
-Class Project.  Collab with two others devs.
+Version 0.9.5
 
-Currently a WIP
+Game is currently fully functioning.
+
+No documentation availible

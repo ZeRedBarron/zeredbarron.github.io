@@ -16,3 +16,6 @@ particle spike bush collistions
 
 Fix paritcle collistion with spikes and bushes
 
+Music tempo?
+
+Speed meter

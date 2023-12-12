@@ -1,5 +1,5 @@
 //Variables for the blocks and platformer stuff.
-var player, blocks = [], lamps = [], portals = [], portalPoints = [], menuBlocks = [];
+var player, blocks = [], lamps = [], portals = [], portalPoints = [], menuBlocks = [], checkpoints = [];
 
 var update, updateMenu;
 var randomBlock;
@@ -23,6 +23,7 @@ var rain = [];
 var splashes = [];
 var brightness = 0;
 var nearPortal = false;
+var nearPortal2 = !false;
 
 var dead = false;
 var win = false;
@@ -32,6 +33,16 @@ var winDist;
 var firstTime = true;
 var paused = false;
 var deathPaused = false;
+
+var originalPlayerLoc = {};
+
+var arrows = [
+	imgs.get("Arrow0"),
+	imgs.get("Arrow1"),
+	imgs.get("Arrow2"),
+	imgs.get("Arrow3"),
+	imgs.get("Arrow4"),
+];
 
 function configureSize() {
 	renderDist = screenSize.w/3;
@@ -146,6 +157,13 @@ function randomWood() {
 		case 4:
 			return "WoodTexture5";
 		break;
+	}
+}
+
+function arrow() {
+	for(var i = -2; i < 3; i++) {
+		var spacing = ((i*(speed - 3.1)*3));
+		ctx.drawImageC(arrows[i + 2], 300 + spacing, 200, blockSize*6, blockSize*4);
 	}
 }
 
@@ -332,7 +350,7 @@ Player.prototype.update = function() {
 		this.angle += 5;
 	    
 		for(var i = 0; i < blocks.length; i++){
-			if(collide(this, blocks[i]) && (blocks[i].type === "s"|| blocks[i].type === "S")) {
+			if(collide(this, blocks[i]) && (blocks[i].type === "s" || blocks[i].type === "S")) {
 				dead = true;
 				if(!this.deathSoundPlayed) {
 					hitWall();
@@ -541,7 +559,7 @@ Player.prototype.update = function() {
 
 	speed = ((seaLevel - this.y)/150) + 3;
 
-	if(this.y > 8000) {
+	if(this.y > 6000) {
 		dead = true;
 	}
 };
@@ -644,15 +662,7 @@ Player.prototype.menuUpdate = function() {
 			this.deathSoundPlayed = true;
 		}
 	}
-
-	/*
-	for(var i in blocks) {
-		if(collide(this, blocks[i])) {
-			this.x = (this.prevX < blocks[i].prevX) ? blocks[i].x - this.w : blocks[i].x + blockSize;
-		}
-	}
-	*/
-
+	
 	if((keys[32] || keys[38]) && this.canJump) {
 		this.gravity = -6.5;
 		this.canJump = false;
@@ -730,6 +740,32 @@ Block.prototype.fadeOut = function() {
 	}
 }
 
+/*function Checkpoint(x, y, loc) {
+	this.x = x;
+	this.y = y;
+	this.imageLow = imgs.get("flagDown");
+	this.imageHigh = imgs.get("flagUp");
+	this.insert = 'p';
+	this.arrived = false;
+	this.loc = loc;
+}
+Checkpoint.prototype.draw = function() {
+	if(this.arrived) {
+		ctx.drawImage(this.imageHigh, this.x, this.y, blockSize*3, blockSize*3);
+	} else {
+		ctx.drawImage(this.imageLow, this.x, this.y, blockSize*3, blockSize*3);
+	}
+}
+Checkpoint.prototype.run = function() {
+	if(player.x > this.x) {
+		//console.log("hi there");
+		this.arrived = true;
+		levels[0][this.loc.x][this.loc.y] = this.insert;
+		console.log(levels[0][0]);
+		//levels[0][originalPlayerLoc.x][originalPlayerLoc.y] = ' ';
+	}
+}*/
+
 function PortalChange(x, y) {
 	this.x = x;
 	this.y = y;
@@ -742,8 +778,7 @@ PortalChange.prototype.frontDark = function() {
 PortalChange.prototype.backDark = function() {
 	ctx.drawImage(imgs.get("portalDarkBack"), this.x - blockSize, this.y - blockSize + 5, blockSize * 2, blockSize * 4)
 }
-PortalChange.prototype.frontLit = function() {
-	
+PortalChange.prototype.frontLit = function() {	
 	ctx.drawImage(imgs.get("portalLitFront"), this.x - 10, this.y - blockSize + 5, blockSize * 2, blockSize * 4);
 }
 PortalChange.prototype.backLit = function() {
@@ -756,7 +791,6 @@ function PortalChangeDark(x, y) {
 	this.soundPlayed = false;
 }
 PortalChangeDark.prototype.all = function() {
-	
 	if(collide(this, player)) {
 		if(portalCooldown <= 0){
 			teleportSound();
@@ -825,24 +859,44 @@ Lamp.prototype.display = function(drawn, lit) {
 
 	if(this.upperLit && !this.clickedOn) {
 		lampClick();
+		lampAmbience.play();
 		this.clickedOn = true;
 		this.clickedOff = false;
 	}
 	if(!this.upperLit && this.clickedOn && !this.clickedOff) {
 		lampClick();
+		lampAmbience.stop();
 		this.clickedOn = false;
 		this.clickedOff = true;
 	}
 
-	lampAmbience.volume = normalize(lampClickDist, 0, 1);
-	
+	lampAmbience.volume = normalize(lampClickDist, 0, 1);	
 }
 
-var pauseButton = new Button(null, imgs.get("pause2"), imgs.get("pause2"), screenSize.w - 100, 100, blockSize, blockSize, function(){
+var pauseButton = new Button(null, imgs.get("pauseOff"), imgs.get("pauseOn"), screenSize.w - 150, 100, blockSize*3, blockSize*2, function(){
 	paused = true;
 });
-var playButton = new Button(null, imgs.get("play2"), imgs.get("play2"), screenSize.w - 100, 100, blockSize, blockSize, function(){
+var playButton = new Button(null, imgs.get("playOff"), imgs.get("playOn"), screenSize.w - 150, 100, blockSize*3, blockSize*2, function(){
 	paused = false;
+});
+
+var returnButton = new Button(null, imgs.get("backOff"), imgs.get("backOn"), screenSize.w - 350, 100, blockSize*3, blockSize*2, function() {
+	trans.start("menu");
+
+	function reset() {
+		dead = false;
+		win = false;
+		win2 = !false;
+
+		firstTime = true;
+		paused = false;
+		deathPaused = false;
+
+		update();
+	} // what is this suppose to do?  It resets the level so that the player is back at the beginning when going back
+
+	setTimeout(reset, 500);
+
 });
 
 var player = new Player(undefined, undefined, "ground");
@@ -851,21 +905,16 @@ var menuPlayer = new Player(undefined, undefined, "ground");
 var timer = new DeathPause();
 
 function game() {
-	//Put background here.
-	portalCooldown --;
+	portalCooldown--;
 	//ctx.drawImage(imgs.get("backgroundTest"), 0, 0, blockSize * 20, blockSize * 10);
 
 	if(scene !== "game") {
 		paused = true;
 	}
 
-	cam.x = lerp(cam.x, window.innerWidth / 2 - 20 / 2 - player.x, 0.1);
-    cam.y = lerp(cam.y, window.innerHeight / 2 - 20 / 2 -      player.y, 0.1);
+	cam.x = lerp(cam.x, p1080.w / 2 - 20 / 2 - player.x, 0.1);
+    cam.y = lerp(cam.y, p1080.h / 2 - 20 / 2 -      player.y, 0.1);
 	
-	ctx.save();
-	ctx.translate(cam.x * 2, cam.y * 2);
-	ctx.restore();
-
 	ctx.save();
 	ctx.translate(cam.x, cam.y);
 
@@ -890,6 +939,7 @@ function game() {
 	for (var i = 0; i < portalPoints.length; i++) {
 		portalPoints[i].all();
 	}
+	
 	for(var i = 0; i < portals.length; i++) {
 		if(dist(player.x, player.y, portals[i].x, portals[i].y) < renderDist) {
 			portals[i].backLit();
@@ -898,6 +948,11 @@ function game() {
 			portals[i].backDark();
 			nearPortal = false;
 		}
+	}
+
+	for(var i = 0; i < checkpoints.length; i++) {
+		checkpoints[i].draw();
+		checkpoints[i].run();
 	}
 	
 	for(var i = playerParticles.length - 1; i > 0; i--) {
@@ -932,6 +987,8 @@ function game() {
 	
 	ctx.restore();
 
+	returnButton.all();
+	
 	if(!paused) {
 		pauseButton.all();
 	} else {
@@ -941,7 +998,10 @@ function game() {
 			pauseButton.all();
 		}
 	}
-	//console.log(paused + " " + dead);
+
+	arrow();
+
+	//console.log(speed);
 
 	if(dead) {
 		paused = true;
@@ -962,7 +1022,7 @@ function game() {
 
 	if(nearPortal === true && portalAmbience.playing === false) {
 		portalAmbience.play();
-	} else if (portalAmbience.playing === false){
+	} else if (portalAmbience.playing === true){
 		portalAmbience.stop();
 	}
 
@@ -987,7 +1047,8 @@ levelMapIndex = {
 	't':'trampoline',
 	'b':'bush',
 	'e':'win',
-	'P':'menuPlayer'
+	'P':'menuPlayer',
+	'@':'checkpoint'
 };
 
 /*
@@ -1216,6 +1277,9 @@ function update() {
 				case "win":
 					winDist = j * blockSize;
 				break;
+				case "checkpoint":
+					checkpoints.push(new Checkpoint(j * blockSize, i * blockSize, {x: j, y: i}));
+				break;
 			}
 		}
 		if(i ===  levelMap.length + 1) {
@@ -1244,6 +1308,8 @@ function updateMenu() {
 				case "player":
 					player.x = 15/2 + j * blockSize;
 					player.y = 15/2 + i * blockSize;
+					originalPlayerLoc.x = 15/2 + j * blockSize;
+					originalPlayerLoc.y = 15/2 + i * blockSize;
 				break;
 				case "normal":
 					menuBlocks.push(new Block(j * blockSize, i * blockSize, levelMapMenu[i][j], imgs.get(randomBlock())));

@@ -1,12 +1,12 @@
 
-var musicbox = new Music();
+var musicbox = new Music();//Music runner
 
 function runGame() {
 	bdy.style.cursor = "auto";
 	musicbox.run();
 	
 	ctx.fillStyle = "rgb(" + brightness + ", " + brightness + ", " + brightness + ")";
-	ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);//redraw a white background for resetting the screen
+	ctx.fillRect(0, 0, p1080.w, p1080.h);//redraw a white background for resetting the screen
 
 	/*
 	ctx.fillStyle = "rgb(255, 255, 255)";
@@ -25,6 +25,7 @@ function runGame() {
 	ctx.fillText("Won: " + win, 20, 260);
 	ctx.fillText("Menu Speed: " + menuSpeed, 20, 280);
  	*///Debugging Text
+	
 	switch(scene) {
 		case "game":
 			game();
