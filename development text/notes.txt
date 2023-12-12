@@ -19,3 +19,7 @@ Fix paritcle collistion with spikes and bushes
 Music tempo?
 
 Speed meter
+
+Rain contiunes after win.
+
+Seam sounds together
