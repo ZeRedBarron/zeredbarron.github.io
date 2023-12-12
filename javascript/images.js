@@ -698,7 +698,7 @@ var imgs = new ImageCollection([
 	},
 	{
 		name: "!",
-		url: "graphics/font/exclamationpoint.png",
+		url: "graphics/font/exclamationpoint.png"
 	},
 ]);//All images
 
